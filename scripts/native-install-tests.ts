@@ -67,6 +67,8 @@ case "$out" in *archive.tar.gz) [ "\${ATLAS_TEST_CORRUPT:-}" != 1 ] || printf ba
   const env = {
     ...process.env,
     HOME: home,
+    ATLAS_HOME: join(home, ".config/atlas"),
+    ATLAS_PROFILE: "default",
     PATH: shim + ":/usr/bin:/bin:/usr/sbin:/sbin",
     ATLAS_INSTALL_DIR: join(home, ".local/share/atlas"),
     ATLAS_BIN_DIR: join(home, ".local/bin"),
