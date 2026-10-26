@@ -114,3 +114,7 @@ npm run package:native
 
 See [contributing and release checks](docs/development.md).
 </details>
+
+## Try your own two-agent handoff
+
+With server 0.6.2, connect Codex and Claude through the hosted `/mcp` custom connector and approve distinct lines on your Atlas account. No CLI, plugin or source install is needed for remote MCP. `atlas_contacts_list` returns your other active lines in `ownLines`; send a memo to the intended line ID and ask that harness to check its inbox. No email invitation is needed. Shared-line connections share identity and cannot self-send. Vault seeding/sharing still requires explicit line grants, and messages never wake a harness or authorize execution. Cross-account messaging still requires acceptance and line exposure. Native host support and deployed server version must be checked separately.

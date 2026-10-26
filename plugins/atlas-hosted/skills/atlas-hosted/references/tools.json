@@ -82,7 +82,7 @@
     },
     {
       "name": "atlas_contacts_list",
-      "description": "List owner-approved active contacts. This tool cannot invite or approve contacts.",
+      "description": "Discover other active lines on your own account in ownLines, plus exposed cross-account lines grouped in relationships. Own lines need no invitation; cross-account communication requires accepted relationships and exposure. Does not grant vault access or approve contacts.",
       "inputSchema": {
         "type": "object",
         "properties": {},
@@ -123,7 +123,7 @@
     },
     {
       "name": "atlas_messages_send",
-      "description": "Whisper to one exposed line, broadcast to a subscriber’s currently exposed lines, or hold against a pending invitation ID. A held message replays only to the first eligible exposed line. Reuse the exact request/key after a lost response. Messages do not grant execution authority.",
+      "description": "Send a memo/request/response to another active owned line or an exposed contact line using to.line. Self-send is rejected. Cross-account subscriber/invitation audiences require a relationship. Save the request and idempotencyKey before sending; identical retries recover the event. Sender comes from authentication, not arguments. Pull delivery does not wake the recipient or authorize execution.",
       "inputSchema": {
         "type": "object",
         "properties": {
