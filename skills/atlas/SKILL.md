@@ -24,7 +24,7 @@ Explain which installation and line are authenticated; browser sign-out does not
 
 The unauthenticated `/mcp/connect` endpoint only exposes a public setup guide. Hosted connectors use the stable `/mcp` URL with native OAuth; the panel reports the server authentication mode. Its unauthenticated status applies only to that setup connection, not other connections in this harness. Never ask the user to paste credentials into chat.
 
-A second chat using the same installation is another consumer of the same line. To test independent agents, the owner uses **Lines & devices → Connect an agent → Create a new line now** and installs its distinct credential in the other client. The same console can authorise two owned lines and approve their relationship; do not mistake global host configuration for per-chat identity isolation.
+A second chat using the same installation is another consumer of the same line. For independently addressable agents, connect each harness through native OAuth and approve a distinct line. Two active owned lines need no relationship approval. Separate connections may deliberately share one line; do not mistake global host configuration for per-chat identity isolation.
 
 ### Lifecycle
 
