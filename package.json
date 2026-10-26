@@ -1,0 +1,35 @@
+{
+  "name": "@zrodivision/atlas-clients",
+  "private": true,
+  "version": "0.6.0-rc.1",
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.1"
+  },
+  "scripts": {
+    "atlas": "tsx scripts/atlas.ts",
+    "check": "tsc --noEmit",
+    "format:check": "prettier --check \"scripts/**/*.ts\"",
+    "test": "npm run test:client-package && npm run test:mcp-install && npm run test:cli-package",
+    "test:client-package": "tsx scripts/client-package-tests.ts",
+    "test:mcp-install": "tsx scripts/mcp-install-tests.ts",
+    "test:cli-package": "tsx scripts/cli-package-tests.ts",
+    "package:client": "tsx scripts/client-package.ts build",
+    "package:hosted": "tsx scripts/client-package.ts build-hosted https://atlas-production-9abf.up.railway.app",
+    "package:cli": "tsx scripts/package-cli.ts",
+    "package:release": "tsx scripts/package-release.ts",
+    "client:status": "tsx scripts/client-package.ts status",
+    "client:install-skill": "tsx scripts/client-package.ts install-skill",
+    "client:package-status": "tsx scripts/client-package.ts package-status",
+    "plugins:generate": "tsx scripts/generate-plugins.ts"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.26.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "prettier": "^3.6.2",
+    "tsx": "^4.20.0",
+    "typescript": "6.0.3"
+  }
+}

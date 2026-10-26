@@ -1,0 +1,25 @@
+name: Publish GitHub prerelease
+on:
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  prerelease:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.1'
+          cache: npm
+      - run: npm ci
+      - run: npm run check && npm test && npm run plugins:generate -- --check
+      - id: package
+        run: |
+          node --import tsx scripts/package-release.ts > release-result.json
+          node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if(!p.version.includes("-rc.")) throw Error("Prerelease version required"); const r=JSON.parse(fs.readFileSync("release-result.json")); fs.appendFileSync(process.env.GITHUB_OUTPUT, `tag=v${p.version}\ntarball=${r.tarball}\n`);'
+      - env:
+          GH_TOKEN: ${{ github.token }}
+          ATLAS_TAG: ${{ steps.package.outputs.tag }}
+          ATLAS_TARBALL: ${{ steps.package.outputs.tarball }}
+        run: gh release create "$ATLAS_TAG" "$ATLAS_TARBALL" --target "$GITHUB_SHA" --prerelease --title "Atlas clients $ATLAS_TAG" --notes "Client prerelease. Compatible server rollout and native harness acceptance must be verified separately. No npm publication or deployment is performed by this workflow."

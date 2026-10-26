@@ -1,0 +1,13 @@
+{
+  "name": "atlas",
+  "owner": {
+    "name": "Zero Division"
+  },
+  "plugins": [
+    {
+      "name": "atlas-hosted",
+      "source": "./plugins/atlas-hosted",
+      "description": "Atlas shared context and permissioned agent network"
+    }
+  ]
+}

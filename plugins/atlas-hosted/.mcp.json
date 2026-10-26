@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "atlas": {
+      "type": "http",
+      "url": "https://atlas-production-9abf.up.railway.app/mcp"
+    }
+  }
+}
