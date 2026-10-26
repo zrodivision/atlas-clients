@@ -61,7 +61,7 @@ export async function codexRpc<T>(
   }, 55_000);
   try {
     await call("initialize", {
-      clientInfo: { name: "atlas_installer", version: "0.6.0-rc.2" },
+      clientInfo: { name: "atlas_installer", version: "0.6.1-rc.1" },
       capabilities: { experimentalApi: true },
     });
     child.stdin.write(JSON.stringify({ method: "initialized" }) + "\n");

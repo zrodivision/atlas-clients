@@ -1,9 +1,9 @@
 {
-  "version": "0.6.0-rc.2",
-  "skillSha256": "b08385425a7957b8d5212eb15250366b11c683ba0027c968eee50015d8629a5c",
-  "catalogSha256": "65191bc533565bab9aa9a2e11dfe578624830fbd5521b6fd1876273d80c84ac9",
+  "version": "0.6.1-rc.1",
+  "skillSha256": "aa8ac659a01b48c2f7ccf0eda7c3451314038a3e0a8e9a43f0b0141a0dd92e3f",
+  "catalogSha256": "f6cef7bbfc426973a1f02613883fcb838a68aa032b0021c276d7a8ae5a14d4a8",
   "surfaces": {
-    "atlas_console": "MCP App entry point; public setup or authenticated connection state. Hosted Console hides unsupported local invitations and offers the Codex installer command; runtime presence remains distinct from authorisation. Clerk sign-in/sign-up, pilot-access, profile email/username and copyable existing Atlas user ID are owner-Console-only; profile edits use Clerk and confer no Atlas authority; inline App continues to hand off human authentication. Hosted named hosted/direct OAuth installation selection, resource URL and revoke are owner-Console-only; MCP App stays an agent surface. Codex CLI installer opens a focused owner approval page, hands back only the scoped public MCP URL, runs native OAuth and checks discovery; Claude Code CLI installer uses the same approval handoff with native add/login/get; identity is confirmed by reading atlas://me in a fresh host chat. Signed-in Getting started help sheet offers assistant prompts, terminal and manual guidance; Overview, Lines and Account use it as the primary connection path, with separate manual configuration. It confers no authority. Hosted Claude/ChatGPT connector setup remains separate. Existing standalone calls/controller/Pi keep installation bearers; no OAuth credentials are placed in generated plugins. Hosted public guide reports authentication mode; hosted plugin targets authenticated /mcp; owner signup and OAuth consent stay in Console. CLI exposes the same authenticated tools/resources; controller/Pi retain bearer profiles.",
+    "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority.",
     "atlas_registration_inspect": "Skill/CLI inspection; MCP App header uses atlas_console.",
     "atlas_lines_register": "MCP App registration; owner authorises installation in Console.",
     "atlas_endpoints_attach": "Skill/CLI only: persistent clientKey belongs to the harness consumer, not an ephemeral panel.",
@@ -25,6 +25,7 @@
     "atlas_context_policy_propose": "MCP App exact scoped proposal for authorised controller installations; human approval remains in Console.",
     "atlas_context_policy_status": "MCP App proposal lookup; decisions only in owner Console.",
     "atlas_inbox_next": "Harness/CLI and explicitly configured Pi tool only: endpoint and persistent request ID belong to the consumer; transient MCP App retains manual pagination.",
-    "atlas_messages_status": "Tool/CLI and explicitly configured Pi delivery inspection; MCP App displays send result and envelope, no automatic status polling."
+    "atlas_messages_status": "Tool/CLI and explicitly configured Pi delivery inspection; MCP App displays send result and envelope, no automatic status polling.",
+    "atlas_contacts_invite": "Permissioned MCP/CLI/explicit Pi tool: exact installation can_invite defaults false and only human owners enable it in Console. Tool queues email; human Console handles verified recipient acceptance/decline and explicit exposure. Inline MCP App deliberately links to Console rather than adding unsolicited mail controls. Controller tools cannot grant invitation authority."
   }
 }
