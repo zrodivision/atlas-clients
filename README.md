@@ -1,61 +1,114 @@
-# Atlas clients
+# Atlas
 
-Public CLI and plugins for Atlas: connect an agent to its identity, permissioned relationships and shared context without access to the server source. The Atlas service is maintained separately and remains private.
+Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-**Prerelease: 0.6.0-rc.1.** This client targets the upcoming Atlas 0.6.0 stable-URL OAuth contract. Server rollout and native harness acceptance are pending. This repository being public does not mean the npm package has been published or the hosted server supports this flow yet.
+**Preview:** the CLI is `0.6.0-rc.2`. Browser signup and the new OAuth connection flow require Atlas server 0.6.0; that rollout is still pending. You can install the client and skill now, but account connection is not yet ready to verify against the hosted service.
 
-## Connect your harness
+## Install
 
-After the compatible server is deployed, add `https://atlas-production-9abf.up.railway.app/mcp` as a remote MCP connector, or install the `atlas-hosted` plugin through your harness plugin manager using this repository's marketplace manifest. Complete the browser sign-in/signup and explicitly select a line. Verify `atlas://me` in a fresh chat; configuration alone does not prove authentication.
-
-Claude Code terminal setup:
+macOS (Apple Silicon or Intel) and Linux (ARM64 or x64, glibc; including WSL):
 
 ```sh
-claude mcp add --transport http --scope user atlas https://atlas-production-9abf.up.railway.app/mcp
-claude mcp login atlas
-claude mcp get atlas
+curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh -s -- --version v0.6.0-rc.2
 ```
 
-Codex terminal setup:
+No Node.js, npm or source checkout is required. The installer downloads a versioned bundle, verifies its SHA-256 checksum and installs `atlas` for your user without sudo. If your shell cannot find it, add the installer’s printed bin directory to your PATH.
+
+You can install the Atlas skill at the same time. Choose your harness:
 
 ```sh
-codex mcp add atlas --url https://atlas-production-9abf.up.railway.app/mcp
-codex mcp login atlas --scopes atlas:mcp,offline_access
-codex mcp get atlas
+# Codex
+curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh -s -- --version v0.6.0-rc.2 --skills codex
+
+# Claude Code: use --skills claude. To install for both: --skills both.
 ```
 
-Preserve existing entries; use a different name if `atlas` already points elsewhere. Browser-only Claude/ChatGPT surfaces use their connector settings and the same URL. Availability depends on the actual host; native login, refresh and MCP App rendering still require validation.
+## Sign in and use Atlas
 
-## CLI
-
-The CLI is an alternative tool interface for shell-capable agents and humans. It supports identity, tool calls, resources and native harness setup. It is not required for browser connectors.
+Once the compatible service is available:
 
 ```sh
-npm ci
-npm run package:release
-# Install the printed zrodivision-atlas-0.6.0-rc.1.tgz path:
-npm install --global /path/to/zrodivision-atlas-0.6.0-rc.1.tgz
 atlas auth login
 atlas whoami
+atlas list
+atlas read atlas://me
 ```
 
-The build needs Node 22.23.1+ and npm, not a server checkout or private GitHub access. [CLI usage and credential lifecycle](packaging/CLI.md) covers profiles, refresh, logout and bearer compatibility.
+Your browser opens for sign-in or signup. Choose an existing line to share its identity and permissions, or create a separate line for an independent agent. Return to your terminal after approval.
 
-CLI and MCP have independent credentials. They may deliberately share a line and its grants across surfaces. Use distinct lines for independently addressable agents. Account membership alone grants no vault access or contact exposure.
+A CLI login and an MCP connection have separate credentials. They can share the same line. Neither automatically grants access to vault contents, contacts or paid services.
 
-## Development and releases
+## Add the skill
+
+The skill teaches your assistant how to use Atlas tools and respect account permissions. It is included in every CLI bundle and in the hosted plugin.
+
+```sh
+atlas skill install codex
+atlas skill install claude
+# Or: atlas skill install both
+```
+
+Start a fresh chat after installation. Changed skill files are backed up before replacement; unrelated skills and files are preserved. Skill installation does not sign you in or change MCP credentials. If you already use the Atlas plugin, its bundled skill is sufficient.
+
+## Connect your assistant with MCP
+
+Browser-only assistants do not need the CLI. In the assistant’s connector or remote MCP settings, add:
+
+```text
+https://atlas-production-9abf.up.railway.app/mcp
+```
+
+Complete browser authorization, then ask the assistant to read `atlas://me` and confirm your account and line. This requires the server rollout noted above.
+
+For terminal harnesses, the CLI can configure the connection using the harness’s own commands:
+
+```sh
+atlas install-mcp codex
+atlas install-mcp claude
+```
+
+If an existing `atlas` entry points elsewhere, preserve it and use `--name another-name`. The harness owns its OAuth credentials; the CLI does not copy them.
+
+You can also add `zrodivision/atlas-clients` through your harness’s plugin marketplace flow and select **atlas-hosted**. The plugin bundles the connector configuration and skill. Host support varies; verify the connection rather than assuming installation means sign-in succeeded.
+
+## Update
+
+```sh
+atlas update
+```
+
+Preview installations follow published preview releases; stable installations follow stable releases. Updates replace the CLI atomically and preserve your login profiles. Refresh a separately installed skill explicitly:
+
+```sh
+atlas skill install codex
+```
+
+To pin a version or roll back:
+
+```sh
+atlas update --version v0.6.0-rc.2
+```
+
+Plugin updates are managed by your harness. CLI updates do not alter installed plugins or their credentials.
+
+## More
+
+- [CLI commands, profiles and troubleshooting](docs/cli.md)
+- [Releases and downloads](https://github.com/zrodivision/atlas-clients/releases)
+- [Atlas skill](skills/atlas/SKILL.md)
+
+<details>
+<summary>Build from source</summary>
+
+Node 22.23.1+ and npm are needed only for development:
 
 ```sh
 npm ci
 npm run check
 npm test
-npm run format:check
-npm run plugins:generate
-npm run package:release
+npm run test:native
+npm run package:native
 ```
 
-The canonical skill is `skills/atlas/SKILL.md`; `contracts/` contains reviewed public schemas and compatibility metadata. `plugins/` and the marketplace manifests are checked-in generated distribution files. CI checks reproducibility and builds independently, with no credentials or private repositories.
-
-Pull requests produce package artifacts. The manual release workflow creates only a GitHub prerelease with the tarball; it does not publish npm or deploy the service. Stable publication follows server deployment and real signup/native-host verification. See [distribution details](packaging/README.md).
-
-Public visibility does not license the private service or its implementation. No open-source license is granted by this initial repository setup.
+See [contributing and release checks](docs/development.md).
+</details>

@@ -3,6 +3,8 @@ on: [push, pull_request]
 permissions:
   contents: read
 jobs:
+  native:
+    uses: ./.github/workflows/native.yml
   clients:
     runs-on: ubuntu-latest
     steps:

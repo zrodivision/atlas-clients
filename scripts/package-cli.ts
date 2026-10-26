@@ -1,5 +1,12 @@
 /** Build only explicitly selected public CLI sources into an independently installable package. */
-import { mkdir, readFile, writeFile, mkdtemp, chmod } from "node:fs/promises";
+import {
+  cp,
+  mkdir,
+  readFile,
+  writeFile,
+  mkdtemp,
+  chmod,
+} from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { resolve, join } from "node:path";
 const root = resolve(import.meta.dirname, "..");
@@ -26,7 +33,7 @@ const result = spawnSync(
     "node",
     "--outDir",
     join(destination, "dist"),
-    ...["atlas", "mcp-install", "cli-oauth"].map((n) =>
+    ...["atlas", "mcp-install", "cli-oauth", "distribution"].map((n) =>
       join(root, `scripts/${n}.ts`),
     ),
   ],
@@ -45,7 +52,7 @@ await writeFile(
         "Atlas network CLI: identities, vaults, messaging and services",
       bin: { atlas: "dist/atlas.js" },
       engines: { node: ">=22.23.1" },
-      files: ["dist", "README.md"],
+      files: ["dist", "skills", "README.md"],
       dependencies: { "@modelcontextprotocol/sdk": "1.26.0" },
       publishConfig: { access: "public" },
     },
@@ -55,6 +62,9 @@ await writeFile(
 );
 await writeFile(
   join(destination, "README.md"),
-  await readFile(join(root, "packaging/CLI.md")),
+  await readFile(join(root, "docs/cli.md")),
 );
+await cp(join(root, "skills"), join(destination, "skills"), {
+  recursive: true,
+});
 console.log(destination);

@@ -77,7 +77,7 @@ export async function packageFiles(repository = root, hostedOrigin?: string) {
     [`skills/${name}/references/tools.json`]: json(catalog),
     "README.md": hostedOrigin
       ? `# Atlas hosted connector\n\nInstall this plugin through your harness plugin manager and complete its native browser OAuth. The connector URL is ${hostedOrigin}/mcp. No Atlas source checkout or CLI is required.\n\nSign in or sign up, name your Atlas account, and approve an existing line or create an independent one. Surfaces of the same harness can share a line and its grants; each connection has its own credentials. Vault access and contact exposure remain explicit owner decisions.\n\nIn a fresh chat, read atlas://me to verify account and line, then use atlas_console where MCP Apps are supported. Installing configuration alone does not establish authentication. Disconnect individual connections in Atlas Console.\n\nThis package includes workflow guidance and generated tool references. The Atlas service owns data and authorization. Never put tokens in plugin files. Release candidate ${pkg.version}: package generation does not establish deployment or native-host acceptance.\n`
-      : await read("packaging/README.md"),
+      : await read("docs/development.md"),
     "release.json": json({
       version: pkg.version,
       skillSha256: digest(skill),

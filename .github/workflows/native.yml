@@ -1,0 +1,37 @@
+name: Standalone bundles
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04
+            platform: linux-x64
+          - runner: ubuntu-24.04-arm
+            platform: linux-arm64
+          - runner: macos-15
+            platform: darwin-arm64
+          - runner: macos-15-intel
+            platform: darwin-x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.23.1'
+          cache: npm
+      - run: npm ci
+      - run: npm run check
+      - run: npm run test:native
+      - name: Build distributable bundle
+        run: |
+          node --import tsx scripts/package-native.ts > native-result.json
+          node --input-type=module -e 'import fs from "node:fs"; import path from "node:path"; const r=JSON.parse(fs.readFileSync("native-result.json")); fs.mkdirSync("release-assets"); fs.copyFileSync(r.tarball, path.join("release-assets",r.asset)); fs.copyFileSync(path.join(r.directory,"SHASUMS256.txt"),path.join("release-assets",r.asset+".sha256"));'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: atlas-native-${{ matrix.platform }}
+          path: release-assets/

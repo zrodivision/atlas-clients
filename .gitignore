@@ -5,3 +5,7 @@ build/
 .env.*
 *.log
 .DS_Store
+native-result.json
+build-native-result.json
+release-result.json
+release-assets/

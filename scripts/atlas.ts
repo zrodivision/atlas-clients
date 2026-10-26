@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 /** Atlas CLI. Human consent stays in the browser; native MCP hosts own separate credentials. */
+import { distribution, version } from "./distribution.js";
 import { oauthCli } from "./cli-oauth.js";
 import { installMcp } from "./mcp-install.js";
 import { constants } from "node:fs";
@@ -49,7 +50,9 @@ try {
     throw Error("Invalid profile name");
   const path = join(directory, profile + ".json");
   const [command = "help", name, args = "{}"] = process.argv.slice(2);
-  if (
+  if (await distribution(command, process.argv.slice(3))) {
+    // Distribution commands do not require an Atlas login.
+  } else if (
     command !== "help" &&
     command !== "install" &&
     command !== "install-mcp" &&
@@ -62,6 +65,9 @@ try {
   } else if (command === "help") {
     output({
       commands: [
+        "--version",
+        "update [--version VERSION]",
+        "skill install codex|claude|both",
         "auth login|status|logout (browser sign-in; no checkout required)",
         "setup",
         "install-mcp codex|claude [--name NAME] (browser sign-in)",
@@ -73,12 +79,14 @@ try {
       ],
       config: ["ATLAS_URL", "ATLAS_HOME", "ATLAS_PROFILE"],
       approval:
-        "Open Console to issue or replace an installation; native OAuth stays in its own profile; human sessions are never agent credentials.",
+        "Use atlas auth login for browser approval. CLI and MCP credentials remain independent; human sessions are never agent credentials.",
     });
   } else if (command === "setup") {
     output({
-      console: endpoint(process.env.ATLAS_URL ?? "http://127.0.0.1:8080"),
-      next: "Sign in as the human owner, open Lines & devices, authorise an installation, then pipe its one-time token privately into install. Do not paste it into command arguments or chat.",
+      console: endpoint(
+        process.env.ATLAS_URL ?? "https://atlas-production-9abf.up.railway.app",
+      ),
+      next: "Run atlas auth login to sign in or sign up in your browser and approve a line. Then run atlas whoami to verify the connection.",
     });
   } else {
     let url: string;
@@ -115,9 +123,7 @@ try {
     }
     client = new Client({
       name: "atlas-cli",
-      version: JSON.parse(
-        await readFile(new URL("../package.json", import.meta.url), "utf8"),
-      ).version,
+      version,
     });
     await client.connect(
       new StreamableHTTPClientTransport(new URL(url + "/mcp"), {
@@ -164,12 +170,21 @@ try {
       output(await client.readResource({ uri: name }));
     else throw Error("Use help for supported commands");
   }
-} catch {
-  // SDK/provider errors may include headers/body. Keep CLI failures credential-free.
-  console.error(
-    "Atlas command failed. Check endpoint, private profile permissions, credential expiry/revocation and tool arguments. Use Console for owner approval or a replacement installation.",
-  );
-  process.exitCode = 1;
+} catch (error) {
+  if (["update", "skill", "version", "--version"].includes(process.argv[2])) {
+    console.error(
+      error instanceof Error
+        ? error.message
+        : "Atlas distribution command failed",
+    );
+    process.exitCode = 1;
+  } else {
+    // SDK/provider errors may include headers/body. Keep CLI failures credential-free.
+    console.error(
+      "Atlas command failed. Check endpoint, private profile permissions, credential expiry/revocation and tool arguments. Use Console for owner approval or a replacement installation.",
+    );
+    process.exitCode = 1;
+  }
 } finally {
   await client?.close().catch(() => {});
 }

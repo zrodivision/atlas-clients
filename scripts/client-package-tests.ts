@@ -92,7 +92,7 @@ try {
     "skills/atlas/SKILL.md",
     "contracts/mcp-catalog.json",
     "contracts/surfaces.json",
-    "packaging/README.md",
+    "docs/development.md",
   ]) {
     await mkdir(join(fixture, path, ".."), { recursive: true });
     await writeFile(join(fixture, path), await readFile(join(root, path)));

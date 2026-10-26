@@ -1,4 +1,4 @@
-/** Export a public distribution tree; never publish or copy the private checkout. */
+/** Build the optional npm package and plugin marketplace distribution. */
 import { mkdir, mkdtemp, writeFile, readdir, readFile } from "node:fs/promises";
 import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
@@ -50,7 +50,7 @@ await writeFile(
 );
 await writeFile(
   join(marketplace, "CLI.md"),
-  await readFile(join(root, "packaging/CLI.md")),
+  await readFile(join(root, "docs/cli.md")),
 );
 const build = spawnSync(
   join(root, "node_modules/.bin/tsx"),
@@ -75,6 +75,8 @@ if (
         "dist/atlas.js",
         "dist/cli-oauth.js",
         "dist/mcp-install.js",
+        "dist/distribution.js",
+        "skills/atlas/SKILL.md",
       ].includes(f.path),
   )
 )

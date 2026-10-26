@@ -2,10 +2,15 @@ name: Publish GitHub prerelease
 on:
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 jobs:
+  native:
+    uses: ./.github/workflows/native.yml
   prerelease:
+    needs: native
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -13,13 +18,25 @@ jobs:
           node-version: '22.23.1'
           cache: npm
       - run: npm ci
-      - run: npm run check && npm test && npm run plugins:generate -- --check
+      - run: npm run check && npm test && npm run format:check && npm run plugins:generate -- --check
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: atlas-native-*
+          path: release-assets
+          merge-multiple: true
       - id: package
         run: |
           node --import tsx scripts/package-release.ts > release-result.json
           node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if(!p.version.includes("-rc.")) throw Error("Prerelease version required"); const r=JSON.parse(fs.readFileSync("release-result.json")); fs.appendFileSync(process.env.GITHUB_OUTPUT, `tag=v${p.version}\ntarball=${r.tarball}\n`);'
-      - env:
+          test "$(find release-assets -name '*.tar.gz' | wc -l)" -eq 4
+          cat release-assets/*.sha256 > release-assets/SHASUMS256.txt
+          cd release-assets
+          sha256sum -c SHASUMS256.txt
+      - name: Publish tested release assets
+        env:
           GH_TOKEN: ${{ github.token }}
           ATLAS_TAG: ${{ steps.package.outputs.tag }}
           ATLAS_TARBALL: ${{ steps.package.outputs.tarball }}
-        run: gh release create "$ATLAS_TAG" "$ATLAS_TARBALL" --target "$GITHUB_SHA" --prerelease --title "Atlas clients $ATLAS_TAG" --notes "Client prerelease. Compatible server rollout and native harness acceptance must be verified separately. No npm publication or deployment is performed by this workflow."
+        run: |
+          gh release create "$ATLAS_TAG" "$ATLAS_TARBALL" release-assets/*.tar.gz release-assets/SHASUMS256.txt install.sh update.sh --target "$GITHUB_SHA" --draft --prerelease --title "Atlas $ATLAS_TAG" --notes "Standalone macOS/Linux x64/ARM64 CLI, bundled Atlas skill, verified installer and explicit updater. No Node/npm required. Browser sign-in requires the compatible Atlas 0.6.0 service rollout, which remains pending. This release does not deploy the service or publish npm. See README for install and update commands."
+          gh release edit "$ATLAS_TAG" --draft=false

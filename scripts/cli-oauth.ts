@@ -287,7 +287,7 @@ export async function oauthCli(
         fetchFn: safeFetch,
       });
     }
-    client = new Client({ name: "atlas-cli", version: "0.6.0-rc.1" });
+    client = new Client({ name: "atlas-cli", version: "0.6.0-rc.2" });
     await client.connect(
       new StreamableHTTPClientTransport(new URL(url.origin + "/mcp"), {
         authProvider: provider,
