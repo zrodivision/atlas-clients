@@ -95,6 +95,33 @@
       }
     },
     {
+      "name": "atlas_contacts_invite",
+      "description": "Send an email invitation from this installation\u2019s subscriber, only with explicit owner-enabled invitation permission for this connection. Recipient must sign in or create an account and explicitly accept. No lines or vault rights are shared. Save requestId and email before calling; retry identical intent with the same UUID. Delivery is queued, not proof of receipt.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "email",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": true,
+        "idempotentHint": true
+      }
+    },
+    {
       "name": "atlas_messages_send",
       "description": "Whisper to one exposed line, broadcast to a subscriber\u2019s currently exposed lines, or hold against a pending invitation ID. A held message replays only to the first eligible exposed line. Reuse the exact request/key after a lost response. Messages do not grant execution authority.",
       "inputSchema": {

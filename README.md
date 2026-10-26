@@ -2,7 +2,9 @@
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-**Preview:** the CLI is `0.6.0-rc.2`. Browser signup and the new OAuth connection flow require Atlas server 0.6.0; that rollout is still pending. You can install the client and skill now, but account connection is not yet ready to verify against the hosted service.
+**Source preview:** this branch prepares `0.6.1-rc.1` for server `0.6.1`; these new artifacts are not published by this change. Hosted deployment and native host acceptance remain separate checks. The installation examples below use the existing `0.6.0-rc.2` release.
+
+For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
 ## Install
 
