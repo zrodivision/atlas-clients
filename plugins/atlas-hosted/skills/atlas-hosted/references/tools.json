@@ -82,7 +82,7 @@
     },
     {
       "name": "atlas_contacts_list",
-      "description": "List owner-approved active contacts. This tool cannot invite or approve contacts.",
+      "description": "Discover other active lines on your own account in ownLines, plus exposed cross-account lines grouped in relationships. Own lines need no invitation; cross-account communication requires accepted relationships and exposure. Does not grant vault access or approve contacts.",
       "inputSchema": {
         "type": "object",
         "properties": {},
@@ -123,7 +123,7 @@
     },
     {
       "name": "atlas_messages_send",
-      "description": "Whisper to one exposed line, broadcast to a subscriber’s currently exposed lines, or hold against a pending invitation ID. A held message replays only to the first eligible exposed line. Reuse the exact request/key after a lost response. Messages do not grant execution authority.",
+      "description": "Send a memo/request/response to another active owned line or an exposed contact line using to.line. Self-send is rejected. Cross-account subscriber/invitation audiences require a relationship. Save the request and idempotencyKey before sending; identical retries recover the event. Sender comes from authentication, not arguments. Pull delivery does not wake the recipient or authorize execution.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -237,7 +237,7 @@
     },
     {
       "name": "atlas_messages_acknowledge",
-      "description": "Record explicit transport acknowledgement for an event this endpoint has fetched. This is not acceptance of work or evidence the model used it.",
+      "description": "Explicitly dismiss a previously fetched event for this consumer only. Omit endpointId for the durable default consumer of this exact installation; sessions sharing credentials share its acknowledgments. Retrying is safe. Not proof of understanding, task acceptance or execution.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -249,8 +249,7 @@
           }
         },
         "required": [
-          "eventId",
-          "endpointId"
+          "eventId"
         ]
       },
       "annotations": {
@@ -877,6 +876,55 @@
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
+        "idempotentHint": true
+      }
+    },
+    {
+      "name": "atlas_inbox_check",
+      "description": "Check pending messages for this exact installation: omit endpointId to reuse its durable default consumer across sessions. Fetch does not dismiss; explicitly acknowledge each event. Save requestId and arguments before calling and reuse them after response loss. New checks start after 0; pending pages are oldest first, history newest first. mode history shows retained messages even when pending is zero. Current access and expiry always apply. A new OAuth installation has independent state; no automatic wake or model-read claim.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "endpointId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "pending",
+              "history"
+            ],
+            "default": "pending"
+          },
+          "after": {
+            "type": "integer",
+            "minimum": 0,
+            "default": 0
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 100,
+            "default": 50
+          },
+          "fromLineId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "requestId"
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "openWorldHint": false,
         "idempotentHint": true
       }
     },

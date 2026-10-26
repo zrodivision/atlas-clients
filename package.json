@@ -1,7 +1,7 @@
 {
   "name": "@zrodivision/atlas-clients",
   "private": true,
-  "version": "0.6.1-rc.1",
+  "version": "0.6.3-rc.1",
   "type": "module",
   "engines": {
     "node": ">=22.23.1"
