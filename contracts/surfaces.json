@@ -7,7 +7,7 @@
   "atlas_messages_send": "MCP App direct owned-line/contact memo and cross-account subscriber composer. Self-send and own-subscriber broadcasts are rejected. Other classes/causation through skill/CLI and explicit Pi tools; pull only.",
   "atlas_messages_list": "Legacy manual history/pagination through tools/CLI; no implicit acknowledgment. MCP App uses atlas_inbox_check pending/history.",
   "atlas_messages_acknowledge": "MCP App explicit per-message dismissal and tools: requires prior fetch by this consumer; omitted endpoint uses installation default. Never task approval.",
-  "atlas_resources_read": "MCP App memory URI resolver; other resource kinds through skill/CLI.",
+  "atlas_resources_read": "MCP App memory URI resolver; workflow guides (atlas://guides), charter and other resource kinds through tools/skill/CLI. Remote connectors without an installed skill read atlas://guides/atlas.",
   "atlas_context_publish": "MCP App private expiring snapshot composer; sharing in owner Console.",
   "atlas_endpoints_state": "Skill/CLI only: runtime reports its own state; a panel cannot infer worker activity.",
   "atlas_services": "MCP App Services inspection and runtime proposal; connector consent/deploy/stop/delete in owner Console. Explicit reads/runs and child_prepare through skill/CLI.",

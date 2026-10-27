@@ -35,11 +35,18 @@ trap cleanup EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
 stage=$(mktemp -d "$root/.download.XXXXXX")
-base=https://github.com/zrodivision/atlas-clients/releases
-if [ "$version" = latest ]; then base=$base/latest/download; else base=$base/download/$version; fi
+releases=https://github.com/zrodivision/atlas-clients/releases
 asset=atlas-$os-$arch.tar.gz
 fetch() { curl --proto '=https' --proto-redir '=https' --tlsv1.2 --connect-timeout 20 --max-time 300 -fsSL "$1" -o "$2"; }
-fetch "$base/SHASUMS256.txt" "$stage/checksums" || { echo 'Release not found. For a preview, pass --version v0.6.0-rc.2.' >&2; exit 1; }
+if [ "$version" = latest ] && ! fetch "$releases/latest/download/SHASUMS256.txt" "$stage/checksums" 2>/dev/null; then
+  # GitHub's latest excludes prereleases; until a stable release exists, select the newest published preview.
+  fetch 'https://api.github.com/repos/zrodivision/atlas-clients/releases?per_page=20' "$stage/releases.json" || { echo 'Could not list Atlas releases' >&2; exit 1; }
+  version=$(grep -o '"tag_name": *"v[^"]*"' "$stage/releases.json" | head -n 1 | sed 's/.*"\(v[^"]*\)"$/\1/')
+  echo "$version" | LC_ALL=C grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$' || { echo 'No published Atlas release found' >&2; exit 1; }
+  echo "No stable release yet; installing preview $version." >&2
+fi
+if [ "$version" = latest ]; then base=$releases/latest/download; else base=$releases/download/$version; fi
+[ -s "$stage/checksums" ] || fetch "$base/SHASUMS256.txt" "$stage/checksums" || { echo "Release $version not found." >&2; exit 1; }
 fetch "$base/$asset" "$stage/archive.tar.gz"
 expected=$(awk -v name="$asset" '$2 == name { print $1 }' "$stage/checksums")
 echo "$expected" | LC_ALL=C grep -Eq '^[0-9a-f]{64}$' || { echo 'Missing or ambiguous checksum' >&2; exit 1; }

@@ -2,7 +2,7 @@
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-**Source preview:** this branch prepares `0.6.1-rc.1` for server `0.6.1`; these new artifacts are not published by this change. Hosted deployment and native host acceptance remain separate checks. The installation examples below use the existing `0.6.0-rc.2` release.
+**Preview:** source is `0.6.6-rc.1` for server `0.6.6`. Publishing a release, deploying the service and native host acceptance are separate steps. Until a stable release exists, the installer selects the newest published preview; pass `--version vX.Y.Z-rc.N` to pin one.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
@@ -11,7 +11,7 @@ For remote MCP, open your harness’s custom connector settings, add the hosted 
 macOS (Apple Silicon or Intel) and Linux (ARM64 or x64, glibc; including WSL):
 
 ```sh
-curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh -s -- --version v0.6.0-rc.2
+curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh
 ```
 
 No Node.js, npm or source checkout is required. The installer downloads a versioned bundle, verifies its SHA-256 checksum and installs `atlas` for your user without sudo. If your shell cannot find it, add the installer’s printed bin directory to your PATH.
@@ -20,7 +20,7 @@ You can install the Atlas skill at the same time. Choose your harness:
 
 ```sh
 # Codex
-curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh -s -- --version v0.6.0-rc.2 --skills codex
+curl -fsSL https://raw.githubusercontent.com/zrodivision/atlas-clients/main/install.sh | sh -s -- --skills codex
 
 # Claude Code: use --skills claude. To install for both: --skills both.
 ```
@@ -50,7 +50,7 @@ atlas skill install claude
 # Or: atlas skill install both
 ```
 
-Start a fresh chat after installation. Changed skill files are backed up before replacement; unrelated skills and files are preserved. Skill installation does not sign you in or change MCP credentials. If you already use the Atlas plugin, its bundled skill is sufficient.
+Start a fresh chat after installation. Changed skill files are backed up before replacement; unrelated skills and files are preserved. Skill installation does not sign you in or change MCP credentials. If you already use the Atlas plugin, its bundled skill is sufficient. Remote connectors with no installed skill read the same guide from the server at `atlas://guides/atlas`. The server reports its guide version, so an assistant can tell when an installed skill is stale.
 
 ## Connect your assistant with MCP
 

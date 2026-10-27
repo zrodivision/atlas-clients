@@ -57,6 +57,9 @@ out=
 while [ "$#" -gt 0 ]; do
  case "$1" in https://*) url=$1; shift ;; -o) out=$2; shift 2 ;; *) shift ;; esac
 done
+if [ "$url" = "https://api.github.com/repos/zrodivision/atlas-clients/releases?per_page=20" ]; then
+ printf '[{"tag_name": "%s", "prerelease": true}]' "\${ATLAS_TEST_PREVIEW_TAG:?}" > "$out"; exit 0
+fi
 path=\${url#https://github.com/zrodivision/atlas-clients/releases/download/}
 [ "$path" != "$url" ] || exit 1
 cp "$ATLAS_TEST_RELEASES/$path" "$out"
@@ -149,13 +152,20 @@ case "$out" in *archive.tar.gz) [ "\${ATLAS_TEST_CORRUPT:-}" != 1 ] || printf ba
   );
   await rm(join(env.ATLAS_INSTALL_DIR, ".install-lock"), { recursive: true });
   assert.equal(await readlink(join(env.ATLAS_INSTALL_DIR, "current")), before);
+  // Without a stable release, the default install resolves the newest published preview.
+  const preview = run("sh", [join(root, "install.sh")], {
+    ATLAS_TEST_PREVIEW_TAG: "v" + version.replace(/^v/, ""),
+  });
+  assert.equal(preview.status, 0, preview.stderr);
+  assert.match(preview.stderr, /installing preview v/);
+  assert.equal(run(executable, ["--version"]).stdout.trim(), version);
   await rm(skill);
   await symlink(unrelated, skill);
   assert.notEqual(run(executable, ["skill", "install", "codex"]).status, 0);
   assert.equal(await readFile(unrelated, "utf8"), "keep");
   assert.equal(await readFile(profile, "utf8"), profileBefore);
   console.log(
-    "PASS standalone install without Node/npm on PATH; bundled skills, backups, profile preservation, atomic update/rollback, checksum failure and install locking",
+    "PASS standalone install without Node/npm on PATH; bundled skills, backups, profile preservation, atomic update/rollback, checksum failure, install locking and preview resolution",
   );
 } finally {
   await rm(scratch, { recursive: true, force: true });
