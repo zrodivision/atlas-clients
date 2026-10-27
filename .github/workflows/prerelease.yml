@@ -1,4 +1,4 @@
-name: Publish GitHub prerelease
+name: Publish GitHub release
 on:
   workflow_dispatch:
 permissions:
@@ -27,7 +27,7 @@ jobs:
       - id: package
         run: |
           node --import tsx scripts/package-release.ts > release-result.json
-          node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if(!p.version.includes("-rc.")) throw Error("Prerelease version required"); const r=JSON.parse(fs.readFileSync("release-result.json")); fs.appendFileSync(process.env.GITHUB_OUTPUT, `tag=v${p.version}\ntarball=${r.tarball}\n`);'
+          node --input-type=module -e 'import fs from "node:fs"; const p=JSON.parse(fs.readFileSync("package.json")); if(!/^\d+\.\d+\.\d+$/.test(p.version)) throw Error("Stable patch version required"); const r=JSON.parse(fs.readFileSync("release-result.json")); fs.appendFileSync(process.env.GITHUB_OUTPUT, `tag=v${p.version}\ntarball=${r.tarball}\n`);'
           test "$(find release-assets -name '*.tar.gz' | wc -l)" -eq 4
           cat release-assets/*.sha256 > release-assets/SHASUMS256.txt
           cd release-assets
@@ -38,5 +38,5 @@ jobs:
           ATLAS_TAG: ${{ steps.package.outputs.tag }}
           ATLAS_TARBALL: ${{ steps.package.outputs.tarball }}
         run: |
-          gh release create "$ATLAS_TAG" "$ATLAS_TARBALL" release-assets/*.tar.gz release-assets/SHASUMS256.txt install.sh update.sh --target "$GITHUB_SHA" --draft --prerelease --title "Atlas $ATLAS_TAG" --notes "Standalone macOS/Linux x64/ARM64 CLI, bundled Atlas skill, verified installer and explicit updater. No Node/npm required. Browser sign-in requires the compatible Atlas 0.6.0 service rollout, which remains pending. This release does not deploy the service or publish npm. See README for install and update commands."
+          gh release create "$ATLAS_TAG" "$ATLAS_TARBALL" release-assets/*.tar.gz release-assets/SHASUMS256.txt install.sh update.sh --target "$GITHUB_SHA" --draft --title "Atlas $ATLAS_TAG" --notes "Standalone macOS/Linux x64/ARM64 CLI, bundled Atlas skill, verified installer and explicit updater. No Node/npm required. Compatible with Atlas service 0.6.6. Service deployment is verified separately. This release does not deploy the service or publish npm. See README for install and update commands."
           gh release edit "$ATLAS_TAG" --draft=false
