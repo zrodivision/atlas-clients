@@ -1,7 +1,7 @@
 {
-  "version": "0.6.5-rc.1",
-  "skillSha256": "cb7cd697f027f613d03898a45493ef36803512eb47f25c9afd139410cb3b5543",
-  "catalogSha256": "42ffaccc9bb9f5f7af06b2c1923bbdf9a6b1eacc6b58b35b98edc9162de66198",
+  "version": "0.6.6",
+  "skillSha256": "807ee2030918b6f2dd62b0f486e7482b180faf3b2e96606412ef7b1ed6942d85",
+  "catalogSha256": "446bb7e9abc238d54842bb5ef2017bb280a0d57de30c5ce35bc8603a0b6958c6",
   "surfaces": {
     "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority.",
     "atlas_registration_inspect": "Skill/CLI inspection; MCP App header uses atlas_console.",
@@ -11,7 +11,7 @@
     "atlas_messages_send": "MCP App direct owned-line/contact memo and cross-account subscriber composer. Self-send and own-subscriber broadcasts are rejected. Other classes/causation through skill/CLI and explicit Pi tools; pull only.",
     "atlas_messages_list": "Legacy manual history/pagination through tools/CLI; no implicit acknowledgment. MCP App uses atlas_inbox_check pending/history.",
     "atlas_messages_acknowledge": "MCP App explicit per-message dismissal and tools: requires prior fetch by this consumer; omitted endpoint uses installation default. Never task approval.",
-    "atlas_resources_read": "MCP App memory URI resolver; other resource kinds through skill/CLI.",
+    "atlas_resources_read": "MCP App memory URI resolver; workflow guides (atlas://guides), charter and other resource kinds through tools/skill/CLI. Remote connectors without an installed skill read atlas://guides/atlas.",
     "atlas_context_publish": "MCP App private expiring snapshot composer; sharing in owner Console.",
     "atlas_endpoints_state": "Skill/CLI only: runtime reports its own state; a panel cannot infer worker activity.",
     "atlas_services": "MCP App Services inspection and runtime proposal; connector consent/deploy/stop/delete in owner Console. Explicit reads/runs and child_prepare through skill/CLI.",

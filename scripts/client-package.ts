@@ -44,6 +44,11 @@ export async function packageFiles(repository = root, hostedOrigin?: string) {
   const compatibility = JSON.parse(await read("contracts/compatibility.json"));
   if (pkg.version.split("-")[0] !== compatibility.serverVersion)
     throw new Error("Client and declared server contract versions must agree");
+  // Remote consumers compare this line with the server's pinned guide version.
+  if (!skill.includes(`Guide version: ${pkg.version}.`))
+    throw new Error(
+      "Skill guide version must match the client release version",
+    );
   const manifest = {
     name,
     version: pkg.version,

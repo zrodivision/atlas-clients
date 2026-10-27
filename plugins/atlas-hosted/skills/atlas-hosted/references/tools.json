@@ -140,10 +140,12 @@
             "type": "integer"
           },
           "correlationId": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "causationId": {
-            "type": "string"
+            "type": "string",
+            "format": "uuid"
           },
           "to": {
             "type": "object",
@@ -260,7 +262,7 @@
     },
     {
       "name": "atlas_resources_read",
-      "description": "Read a logical atlas:// URI with the caller's permissions. Reads do not create lines, grant access, or start work.",
+      "description": "Read a logical atlas:// URI with the caller's permissions. Reads do not create lines, grant access, or start work. Start with atlas://guides/atlas for workflow guidance pinned to this server.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1009,6 +1011,18 @@
       "uri": "atlas://network/charter",
       "description": "Versioned network charter; delivery is not proof of compliance",
       "mimeType": "application/json"
+    },
+    {
+      "name": "guides",
+      "uri": "atlas://guides",
+      "description": "Workflow guides pinned to this server's reviewed client release, with version and sha256 for staleness checks; guidance, not authority",
+      "mimeType": "application/json"
+    },
+    {
+      "name": "atlas-guide",
+      "uri": "atlas://guides/atlas",
+      "description": "Atlas network workflow guide for remote MCP consumers without an installed skill",
+      "mimeType": "text/markdown"
     }
   ],
   "resourceTemplates": [
@@ -1051,6 +1065,12 @@
       "uriTemplate": "atlas://vaults/{vaultId}/memories/{id}/revisions/{revision}",
       "name": "Retained vault memory revision (full access only)",
       "mimeType": "application/json"
+    },
+    {
+      "name": "atlas://guides/{guideId}",
+      "uriTemplate": "atlas://guides/{guideId}",
+      "description": "Versioned workflow guide",
+      "mimeType": "text/markdown"
     }
   ]
 }
