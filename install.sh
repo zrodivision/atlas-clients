@@ -38,15 +38,28 @@ stage=$(mktemp -d "$root/.download.XXXXXX")
 releases=https://github.com/zrodivision/atlas-clients/releases
 asset=atlas-$os-$arch.tar.gz
 fetch() { curl --proto '=https' --proto-redir '=https' --tlsv1.2 --connect-timeout 20 --max-time 300 -fsSL "$1" -o "$2"; }
-if [ "$version" = latest ] && ! fetch "$releases/latest/download/SHASUMS256.txt" "$stage/checksums" 2>/dev/null; then
-  # GitHub's latest excludes prereleases; until a stable release exists, select the newest published preview.
-  fetch 'https://api.github.com/repos/zrodivision/atlas-clients/releases?per_page=20' "$stage/releases.json" || { echo 'Could not list Atlas releases' >&2; exit 1; }
-  version=$(grep -o '"tag_name": *"v[^"]*"' "$stage/releases.json" | head -n 1 | sed 's/.*"\(v[^"]*\)"$/\1/')
+api=https://api.github.com/repos/zrodivision/atlas-clients/releases
+# Print the HTTP status (000 on transport failure) and keep the body for parsing.
+status() { curl --proto '=https' --proto-redir '=https' --tlsv1.2 --connect-timeout 20 --max-time 60 -sSL -o "$2" -w '%{http_code}' "$1" 2>/dev/null || true; }
+tag() { grep -o '"tag_name": *"v[^"]*"' "$1" | head -n 1 | sed 's/.*"\(v[^"]*\)"$/\1/'; }
+if [ "$version" = latest ]; then
+  # Resolve an exact tag first. GitHub's latest is stable-only; only its 404 proves no stable release exists.
+  code=$(status "$api/latest" "$stage/release.json")
+  case "$code" in
+    200) version=$(tag "$stage/release.json") ;;
+    404)
+      code=$(status "$api?per_page=20" "$stage/releases.json")
+      [ "$code" = 200 ] || { echo "Could not list Atlas releases (HTTP $code); retry or pass --version." >&2; exit 1; }
+      version=$(tag "$stage/releases.json")
+      preview=1
+      ;;
+    *) echo "Could not check the latest Atlas release (HTTP $code); retry or pass --version." >&2; exit 1 ;;
+  esac
   echo "$version" | LC_ALL=C grep -Eq '^v[0-9]+\.[0-9]+\.[0-9]+(-rc\.[0-9]+)?$' || { echo 'No published Atlas release found' >&2; exit 1; }
-  echo "No stable release yet; installing preview $version." >&2
+  [ -z "${preview:-}" ] || echo "No stable release yet; installing preview $version." >&2
 fi
-if [ "$version" = latest ]; then base=$releases/latest/download; else base=$releases/download/$version; fi
-[ -s "$stage/checksums" ] || fetch "$base/SHASUMS256.txt" "$stage/checksums" || { echo "Release $version not found." >&2; exit 1; }
+base=$releases/download/$version
+fetch "$base/SHASUMS256.txt" "$stage/checksums" || { echo "Release $version not found." >&2; exit 1; }
 fetch "$base/$asset" "$stage/archive.tar.gz"
 expected=$(awk -v name="$asset" '$2 == name { print $1 }' "$stage/checksums")
 echo "$expected" | LC_ALL=C grep -Eq '^[0-9a-f]{64}$' || { echo 'Missing or ambiguous checksum' >&2; exit 1; }

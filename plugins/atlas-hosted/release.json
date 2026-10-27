@@ -1,6 +1,6 @@
 {
   "version": "0.6.6-rc.1",
-  "skillSha256": "8e75157ae7658adbe67ea51e1b6696b3adbfd36be2b2ec7759164ab4d84e1950",
+  "skillSha256": "9df8f66339d1b7541f1d3f3c0a238d10cd12624ccd02dc1bd6ee8f430bebe174",
   "catalogSha256": "446bb7e9abc238d54842bb5ef2017bb280a0d57de30c5ce35bc8603a0b6958c6",
   "surfaces": {
     "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority.",
