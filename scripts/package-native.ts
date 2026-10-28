@@ -1,5 +1,6 @@
 /** Self-contained archive: official Node runtime, bundled CLI, skill and updater. */
 import { build } from "esbuild";
+import { officialNodeArchive } from "./node-runtime.js";
 import {
   mkdir,
   mkdtemp,
@@ -33,33 +34,16 @@ function run(cmd: string, args: string[]) {
   if (result.status !== 0) throw Error(`${cmd} failed: ${result.stderr}`);
   return result.stdout;
 }
-const filename = `node-v${runtime}-${platform}-${arch}.tar.gz`;
-const base = `https://nodejs.org/dist/v${runtime}`;
-for (const file of [filename, "SHASUMS256.txt"])
-  run("curl", [
-    "--proto",
-    "=https",
-    "--proto-redir",
-    "=https",
-    "--tlsv1.2",
-    "--max-time",
-    "300",
-    "-fsSL",
-    `${base}/${file}`,
-    "-o",
-    join(parent, file),
-  ]);
-const expected = (await readFile(join(parent, "SHASUMS256.txt"), "utf8"))
-  .split("\n")
-  .find((line) => line.trim().split(/\s+/)[1] === filename)
-  ?.split(/\s+/)[0];
-const actual = createHash("sha256")
-  .update(await readFile(join(parent, filename)))
-  .digest("hex");
-if (actual !== expected) throw Error("Node runtime checksum mismatch");
+const archive = await officialNodeArchive(
+  runtime,
+  platform,
+  arch,
+  join(root, "build/node-runtime-cache"),
+  parent,
+);
 run("tar", [
   "-xzf",
-  join(parent, filename),
+  archive,
   "-C",
   destination,
   "--strip-components=1",

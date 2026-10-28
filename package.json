@@ -23,7 +23,8 @@
     "client:package-status": "tsx scripts/client-package.ts package-status",
     "plugins:generate": "tsx scripts/generate-plugins.ts",
     "package:native": "tsx scripts/package-native.ts",
-    "test:native": "tsx scripts/native-install-tests.ts"
+    "test:native": "npm run test:node-runtime && tsx scripts/native-install-tests.ts",
+    "test:node-runtime": "tsx scripts/node-runtime-tests.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.26.0"
