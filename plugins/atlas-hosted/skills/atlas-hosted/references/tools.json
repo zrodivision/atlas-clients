@@ -59,7 +59,7 @@
     },
     {
       "name": "atlas_endpoints_attach",
-      "description": "Attach a pull-only runtime to the bound line. Reuse clientKey across restarts. Endpoint identity is not proof of model attention.",
+      "description": "Attach a pull-only runtime to the bound line. Reuse clientKey across restarts. Endpoint identity is not proof of model attention. Same key resumes the same consumer only within this installation. Optional label renames display metadata without changing identity or receipts.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -68,6 +68,12 @@
           },
           "deliveryMode": {
             "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Optional mutable display label; collisions allowed. Resume by stable clientKey within this installation."
           }
         },
         "required": [
@@ -248,6 +254,10 @@
           },
           "endpointId": {
             "type": "string"
+          },
+          "clientKey": {
+            "type": "string",
+            "description": "Resume a previously attached consumer in this installation by its stable key; mutually exclusive with endpointId."
           }
         },
         "required": [
@@ -917,6 +927,10 @@
           "fromLineId": {
             "type": "string",
             "format": "uuid"
+          },
+          "clientKey": {
+            "type": "string",
+            "description": "Resume a previously attached consumer in this installation by its stable key; mutually exclusive with endpointId."
           }
         },
         "required": [
@@ -977,6 +991,71 @@
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_endpoints_list",
+      "description": "Read-only discovery of consumers in this installation, with stable keys, claimed labels and server IDs. Labels are not unique or proof of host identity. Reconsent/reinstall cannot resume another installation.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {},
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_handoffs_leave",
+      "description": "Explicitly leave an expiring passive note on your authenticated own line. Shared with all manual consumers including the sender, never targeted by label. No push, wake, auto-reply, execution or vault write. Attach a stable clientKey first; omit it to use the shared installation default. Check with atlas_inbox_check, acknowledge independently by consumer.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "ttlSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2592000
+          },
+          "clientKey": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "causationId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "text",
+          "idempotencyKey",
+          "ttlSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
         "openWorldHint": false
       }
     }
