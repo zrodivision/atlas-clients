@@ -59,7 +59,7 @@
     },
     {
       "name": "atlas_endpoints_attach",
-      "description": "Attach a pull-only runtime to the bound line. Reuse clientKey across restarts. Endpoint identity is not proof of model attention.",
+      "description": "Attach a pull-only runtime to the bound line. Reuse clientKey across restarts. Endpoint identity is not proof of model attention. Same key resumes the same consumer only within this installation. Optional label renames display metadata without changing identity or receipts.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -68,6 +68,12 @@
           },
           "deliveryMode": {
             "type": "string"
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200,
+            "description": "Optional mutable display label; collisions allowed. Resume by stable clientKey within this installation."
           }
         },
         "required": [
@@ -137,7 +143,9 @@
             "type": "string"
           },
           "ttlSeconds": {
-            "type": "integer"
+            "type": "integer",
+            "default": 86400,
+            "description": "Seconds until expiry; defaults to 86400 (one day). Recipient retention policy may shorten this; retention is a cap, not the default message TTL."
           },
           "correlationId": {
             "type": "string",
@@ -212,7 +220,7 @@
     },
     {
       "name": "atlas_messages_list",
-      "description": "Pull events addressed to your line, optionally from one contact. Supply endpointId to record fetched receipts. Save nextCursor separately per filter and endpoint; fetching never acknowledges or executes.",
+      "description": "Pull events addressed to your line, optionally from one contact. Supply endpointId to record fetched receipts. Save nextCursor separately per filter and endpoint; fetching never acknowledges or executes. Targeted handoffs require an explicit own endpointId in this legacy inbox stream; use atlas_inbox_check with clientKey for named pending/history.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -248,6 +256,10 @@
           },
           "endpointId": {
             "type": "string"
+          },
+          "clientKey": {
+            "type": "string",
+            "description": "Resume a previously attached consumer in this installation by its stable key; mutually exclusive with endpointId."
           }
         },
         "required": [
@@ -883,7 +895,7 @@
     },
     {
       "name": "atlas_inbox_check",
-      "description": "Check pending messages for this exact installation: omit endpointId to reuse its durable default consumer across sessions. Fetch does not dismiss; explicitly acknowledge each event. Save requestId and arguments before calling and reuse them after response loss. New checks start after 0; pending pages are oldest first, history newest first. mode history shows retained messages even when pending is zero. Current access and expiry always apply. A new OAuth installation has independent state; no automatic wake or model-read claim.",
+      "description": "Check pending messages for this exact installation: omit endpointId to reuse its durable default consumer across sessions. Fetch does not dismiss; explicitly acknowledge each event. Save requestId and arguments before calling and reuse them after response loss. New checks start after 0; pending pages are oldest first, history newest first. mode history shows retained messages even when pending is zero. Current access and expiry always apply. A new OAuth installation has independent state; no automatic wake or model-read claim. Same-line targeted handoffs appear only for the selected own consumer; shared notes remain available to all manual consumers. inbox.destinations on ordinary results identifies targeted pending consumers of this installation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -917,6 +929,10 @@
           "fromLineId": {
             "type": "string",
             "format": "uuid"
+          },
+          "clientKey": {
+            "type": "string",
+            "description": "Resume a previously attached consumer in this installation by its stable key; mutually exclusive with endpointId."
           }
         },
         "required": [
@@ -977,6 +993,105 @@
       "annotations": {
         "readOnlyHint": true,
         "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_endpoints_list",
+      "description": "Discover registered consumers on this installation (default) or authenticated same line (scope same_line). Same-line discovery includes installation IDs and readable_here; it grants no foreign reading/ack authority. Exact labels and keys may collide and are claimed metadata, not host attestation. Only active installations are listed; reinstall does not resume old consumers.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "current_installation",
+              "same_line"
+            ],
+            "default": "current_installation"
+          }
+        },
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_handoffs_leave",
+      "description": "Leave an expiring passive same-line memo. Optional recipient selects exactly one registered label, clientKey or endpointId, optionally installationId; discover scope same_line first and disambiguate collisions. No recipient means shared manual inbox. Source clientKey/endpointId belongs to this installation. Target binding survives label changes; save and retry identical arguments/key. Recipient hints appear without wake, execution or replies. Targeting routes inbox state, not line-level history confidentiality.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "text": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 16000
+          },
+          "idempotencyKey": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "ttlSeconds": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 2592000
+          },
+          "clientKey": {
+            "type": "string"
+          },
+          "endpointId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "correlationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "causationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "clientKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "endpointId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "installationId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Exactly one label, clientKey or endpointId; optional installationId disambiguates. Exact case-sensitive match on this line only."
+          }
+        },
+        "required": [
+          "text",
+          "idempotencyKey",
+          "ttlSeconds"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
         "openWorldHint": false
       }
     }

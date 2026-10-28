@@ -1,5 +1,5 @@
 {
-  "serverVersion": "0.7.1",
+  "serverVersion": "0.7.2",
   "status": "prerelease",
   "authorization": "Atlas-issued OAuth with S256 PKCE at the stable /mcp resource"
 }
