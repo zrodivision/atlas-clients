@@ -143,7 +143,9 @@
             "type": "string"
           },
           "ttlSeconds": {
-            "type": "integer"
+            "type": "integer",
+            "default": 86400,
+            "description": "Seconds until expiry; defaults to 86400 (one day). Recipient retention policy may shorten this; retention is a cap, not the default message TTL."
           },
           "correlationId": {
             "type": "string",
@@ -218,7 +220,7 @@
     },
     {
       "name": "atlas_messages_list",
-      "description": "Pull events addressed to your line, optionally from one contact. Supply endpointId to record fetched receipts. Save nextCursor separately per filter and endpoint; fetching never acknowledges or executes.",
+      "description": "Pull events addressed to your line, optionally from one contact. Supply endpointId to record fetched receipts. Save nextCursor separately per filter and endpoint; fetching never acknowledges or executes. Targeted handoffs require an explicit own endpointId in this legacy inbox stream; use atlas_inbox_check with clientKey for named pending/history.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -893,7 +895,7 @@
     },
     {
       "name": "atlas_inbox_check",
-      "description": "Check pending messages for this exact installation: omit endpointId to reuse its durable default consumer across sessions. Fetch does not dismiss; explicitly acknowledge each event. Save requestId and arguments before calling and reuse them after response loss. New checks start after 0; pending pages are oldest first, history newest first. mode history shows retained messages even when pending is zero. Current access and expiry always apply. A new OAuth installation has independent state; no automatic wake or model-read claim.",
+      "description": "Check pending messages for this exact installation: omit endpointId to reuse its durable default consumer across sessions. Fetch does not dismiss; explicitly acknowledge each event. Save requestId and arguments before calling and reuse them after response loss. New checks start after 0; pending pages are oldest first, history newest first. mode history shows retained messages even when pending is zero. Current access and expiry always apply. A new OAuth installation has independent state; no automatic wake or model-read claim. Same-line targeted handoffs appear only for the selected own consumer; shared notes remain available to all manual consumers. inbox.destinations on ordinary results identifies targeted pending consumers of this installation.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -996,10 +998,19 @@
     },
     {
       "name": "atlas_endpoints_list",
-      "description": "Read-only discovery of consumers in this installation, with stable keys, claimed labels and server IDs. Labels are not unique or proof of host identity. Reconsent/reinstall cannot resume another installation.",
+      "description": "Discover registered consumers on this installation (default) or authenticated same line (scope same_line). Same-line discovery includes installation IDs and readable_here; it grants no foreign reading/ack authority. Exact labels and keys may collide and are claimed metadata, not host attestation. Only active installations are listed; reinstall does not resume old consumers.",
       "inputSchema": {
         "type": "object",
-        "properties": {},
+        "properties": {
+          "scope": {
+            "type": "string",
+            "enum": [
+              "current_installation",
+              "same_line"
+            ],
+            "default": "current_installation"
+          }
+        },
         "additionalProperties": false
       },
       "annotations": {
@@ -1010,7 +1021,7 @@
     },
     {
       "name": "atlas_handoffs_leave",
-      "description": "Explicitly leave an expiring passive note on your authenticated own line. Shared with all manual consumers including the sender, never targeted by label. No push, wake, auto-reply, execution or vault write. Attach a stable clientKey first; omit it to use the shared installation default. Check with atlas_inbox_check, acknowledge independently by consumer.",
+      "description": "Leave an expiring passive same-line memo. Optional recipient selects exactly one registered label, clientKey or endpointId, optionally installationId; discover scope same_line first and disambiguate collisions. No recipient means shared manual inbox. Source clientKey/endpointId belongs to this installation. Target binding survives label changes; save and retry identical arguments/key. Recipient hints appear without wake, execution or replies. Targeting routes inbox state, not line-level history confidentiality.",
       "inputSchema": {
         "type": "object",
         "properties": {
@@ -1043,6 +1054,31 @@
           "causationId": {
             "type": "string",
             "format": "uuid"
+          },
+          "recipient": {
+            "type": "object",
+            "properties": {
+              "label": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "clientKey": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              },
+              "endpointId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "installationId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "additionalProperties": false,
+            "description": "Exactly one label, clientKey or endpointId; optional installationId disambiguates. Exact case-sensitive match on this line only."
           }
         },
         "required": [

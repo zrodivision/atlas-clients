@@ -1,7 +1,7 @@
 {
-  "version": "0.7.1",
-  "skillSha256": "dd7a06c77c7e08bad468adefcbeda7d8a7a9257f9f269ef52847603fa7fc776f",
-  "catalogSha256": "570afa86f43793dd3ac23a0a3452f3723d45a26ac5a0580e018dfa6efdee48a4",
+  "version": "0.7.2",
+  "skillSha256": "f28b0d7f6c690c01216f0f12a9a91b35ae0998fe619ca11d4abc5407f8df1c5c",
+  "catalogSha256": "2c3d2a5a6c0823e1530a33575a01e5ff821554a3134a6b5dbfb78b765ffb4f93",
   "surfaces": {
     "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority.",
     "atlas_registration_inspect": "Skill/CLI inspection; MCP App header uses atlas_console.",
@@ -28,7 +28,7 @@
     "atlas_messages_status": "Tool/CLI and explicitly configured Pi delivery inspection; MCP App displays send result and envelope, no automatic status polling.",
     "atlas_contacts_invite": "Permissioned MCP/CLI/explicit Pi tool: exact installation can_invite defaults false and only human owners enable it in Console. Tool queues email; human Console handles verified recipient acceptance/decline and explicit exposure. Inline MCP App deliberately links to Console rather than adding unsolicited mail controls. Controller tools cannot grant invitation authority.",
     "atlas_inbox_check": "MCP App and tools: durable exact-installation default consumer, pending/history pages and exact-request recovery. Explicit endpoints remain independent. Fetch does not acknowledge; no push or model-attention claim. clientKey can resume an attached consumer without UUID bookkeeping. Manual counts include handoffs; automatic inbox hints exclude same-line notes.",
-    "atlas_endpoints_list": "Read-only tool/CLI discovery of current-installation keys, labels and IDs. Owner Console consumer inspection remains available; endpoint management UI deferred.",
-    "atlas_handoffs_leave": "Explicit MCP/HTTP/CLI passive same-line shared memo with expiry and source consumer. Owner Console history labels handoffs separately. Inline reads existing inbox/history; a dedicated composer and Pi-specific tool are deferred. No automatic notification, inference, controller reply, host wake, targeting or vault mutation."
+    "atlas_endpoints_list": "MCP/HTTP/CLI read-only current-installation or same-line destination discovery; foreign endpoints grant no read/ack authority.",
+    "atlas_handoffs_leave": "MCP/HTTP/CLI shared or exact named same-line destination memos. Independent consumer fetch/ack; installation-local named destination hints suppress source-self hints. Owner line history remains inspectable. Inline default reading only; named checks/composition use MCP/CLI. Dedicated composer and Pi handoff tools deferred. No host wake, inference or vault mutation."
   }
 }
