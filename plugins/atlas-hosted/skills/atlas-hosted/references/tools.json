@@ -356,6 +356,34 @@
         "readOnlyHint": false,
         "destructiveHint": false,
         "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "duplicate": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "held",
+              "available"
+            ]
+          },
+          "audienceSize": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "eventId",
+          "duplicate"
+        ],
+        "description": "Transport receipt only. No content truth, attention, acceptance or execution is attested. Read projections carry body in payload.parts and metadata in envelope.claimed."
       }
     },
     {
@@ -1371,6 +1399,34 @@
         "destructiveHint": false,
         "idempotentHint": true,
         "openWorldHint": false
+      },
+      "outputSchema": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "duplicate": {
+            "type": "boolean"
+          },
+          "state": {
+            "type": "string",
+            "enum": [
+              "held",
+              "available"
+            ]
+          },
+          "audienceSize": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "eventId",
+          "duplicate"
+        ],
+        "description": "Transport receipt only. No content truth, attention, acceptance or execution is attested. Read projections carry body in payload.parts and metadata in envelope.claimed."
       }
     }
   ],
