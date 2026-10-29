@@ -2,7 +2,7 @@
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-Source is unreleased `0.7.2` for server `0.7.2`; deployed 0.7.1 does not include draft handoffs. Publishing a release, deploying the service and native host acceptance are separate steps. Until a stable release exists, the installer selects the newest published preview; pass `--version vX.Y.Z-rc.N` to pin one.
+Source is unreleased `0.8.0` for server `0.8.0`, including structured message parts and claimed metadata. The last recorded deployment, 0.7.1, does not include draft handoffs or these message enrichments. Publishing a release, deploying the service and native host acceptance are separate steps. Until a stable release exists, the installer selects the newest published preview; pass `--version vX.Y.Z-rc.N` to pin one.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
