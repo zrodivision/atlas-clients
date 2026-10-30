@@ -1,9 +1,9 @@
 {
-  "version": "0.8.0",
-  "skillSha256": "ad5fde79f0b875187c7a15bf7617409d80b2e8a99c04cf1746899fb4622d53cb",
+  "version": "0.9.0",
+  "skillSha256": "5d147633a127a54673f16a89665b5a8514c9bfcaa9fbe1edb5c126f727ae32d2",
   "catalogSha256": "01bc024b7ff825fadfb1336c56af561a1d7ef7c79fde260582d5d6a2b0e75691",
   "surfaces": {
-    "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority.",
+    "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority. The Developers section owns scoped app-key issuance/revocation and a draft Lines API reference; the inline App links to the Console and never issues keys.",
     "atlas_registration_inspect": "Skill/CLI inspection; MCP App header uses atlas_console.",
     "atlas_lines_register": "MCP App registration; owner authorises installation in Console.",
     "atlas_endpoints_attach": "Tool/CLI: attach/resume a stable installation-scoped clientKey; optional mutable claimed label. No cross-installation rebinding. Inline continues using its installation default.",
@@ -14,7 +14,7 @@
     "atlas_resources_read": "MCP App memory URI resolver; workflow guides (atlas://guides), charter and other resource kinds through tools/skill/CLI. Remote connectors without an installed skill read atlas://guides/atlas.",
     "atlas_context_publish": "MCP App private expiring snapshot composer; sharing in owner Console.",
     "atlas_endpoints_state": "Skill/CLI only: runtime reports its own state; a panel cannot infer worker activity.",
-    "atlas_services": "MCP App Services inspection and runtime proposal; connector consent/deploy/stop/delete in owner Console. Explicit reads/runs and child_prepare through skill/CLI.",
+    "atlas_services": "MCP App Services inspection and runtime proposal; connector consent/deploy/stop/delete in owner Console. Explicit reads/runs and child_prepare through skill/CLI. New resource simulation proposals are a separate scoped Lines API draft; MCP/CLI/Pi and owner resource UI parity is explicitly deferred. Existing provider/runtime behavior is unchanged.",
     "atlas_context_vaults": "MCP App Memory vaults discovery and effective-access state.",
     "atlas_context_search": "MCP App bounded search; advanced metadata filters through skill/CLI.",
     "atlas_context_read": "MCP App selected memory inspection; pinned revision reads through resource URI or skill/CLI.",
