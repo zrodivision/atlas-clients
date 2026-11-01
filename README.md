@@ -1,10 +1,12 @@
-> Unreleased 0.11.0 adds managed-agent guidance. Agents API is the new managed runtime path; existing Pi/Sprite are legacy. Build/fixtures do not establish deployment or live-provider acceptance.
+> **0.12.0 source release:** Account-only human conversations and bounded hands-free client voice use the same Atlas conversation/task authority. See the canonical skill for call consent, attribution and recovery boundaries. Physical microphone/WebRTC and managed Agents API inference acceptance remain separate from controlled tests.
+
+> Service deployment, GitHub client artifacts and installed hosts are separate states. This source targets Atlas service 0.12.0; publishing this repository does not deploy that service. Native sign-in and rendering acceptance must be checked on each supported host.
 
 # Atlas
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-Source is unreleased `0.8.0` for server `0.8.0`, including structured message parts and claimed metadata. The last recorded deployment, 0.7.1, does not include draft handoffs or these message enrichments. Publishing a release, deploying the service and native host acceptance are separate steps. Until a stable release exists, the installer selects the newest published preview; pass `--version vX.Y.Z-rc.N` to pin one.
+Source and compatibility metadata are `0.12.0`. Publishing a release, deploying the service and native host acceptance are separate steps. The installer follows published stable releases; use `--version v0.12.0` to request this version after its assets are published.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
