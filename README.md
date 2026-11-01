@@ -1,3 +1,5 @@
+> Unreleased 0.11.0 adds managed-agent guidance. Agents API is the new managed runtime path; existing Pi/Sprite are legacy. Build/fixtures do not establish deployment or live-provider acceptance.
+
 # Atlas
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
