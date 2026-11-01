@@ -1,4 +1,6 @@
-> Unreleased 0.11.0 adds managed-agent guidance. Agents API is the new managed runtime path; existing Pi/Sprite are legacy. Build/fixtures do not establish deployment or live-provider acceptance.
+> **0.12.0 source release:** Account-only human conversations and bounded hands-free client voice use the same Atlas conversation/task authority. See the canonical skill for call consent, attribution and recovery boundaries. Physical microphone/WebRTC and managed Agents API inference acceptance remain separate from controlled tests.
+
+> Service deployment, GitHub client artifacts and installed hosts are separate states. This source targets Atlas service 0.12.0; publishing this repository does not deploy that service. Native sign-in and rendering acceptance must be checked on each supported host.
 
 # Atlas
 
