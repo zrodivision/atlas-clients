@@ -1600,6 +1600,64 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "atlas_call_turns",
+      "description": "Inspect a currently authorized private caller transcript or queue one bounded plain-text reply on its exact existing call. Requires explicit own-phone transcription consent, exact installation and calls:read/calls:reply scopes. No dial, answer, transfer, number, SSML, media or provider URL override. Retain requestId and exact text before reply; uncertain effects are never resent. Command acceptance does not prove audible playback, task completion, native host audio or memory access.",
+      "inputSchema": {
+        "type": "object",
+        "oneOf": [
+          {
+            "properties": {
+              "action": {
+                "const": "inspect"
+              },
+              "turnId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "action",
+              "turnId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "action": {
+                "const": "reply"
+              },
+              "turnId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512
+              }
+            },
+            "required": [
+              "action",
+              "turnId",
+              "requestId",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "resources": [
