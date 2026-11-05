@@ -231,3 +231,13 @@ expired consent blocks later effects. Owner Stop requests teardown; it cannot
 recall in-flight audio. This candidate has no continuous dialog, barge-in, native
 host audio or guaranteed private memory/thread resumption. Real carrier and
 installed-host acceptance remain unverified.
+
+### Start a consented phone text
+
+`atlas_sms_send` is a shared capability for external agent installations and optional managed Workers. First call `action: "routes"`; an empty list means no currently authorized initiation route. A human must separately allow the exact assistant to start texts to their verified phone for a stated purpose and finite duration. Existing incoming/reply permission does not confer initiation authority. Scoped credentials need `sms:send` and `tasks:read`; phone, originating number, installation and purpose remain bound to the route.
+
+Save a UUID `requestId` and the exact message text, then call `action: "send"` with `routeId`, `requestId` and `text`. Do not supply a phone, sender, purpose override, attachment or alternate channel. The current SMS adapter accepts at most 160 characters of its restricted single-segment plain-text alphabet and permits at most one initiation per minute and twenty per route per day, within the finite operator allowance. It never silently falls back to another transport.
+
+After a lost response, use `action: "status"` with the same route and request IDs, or repeat the unchanged saved intent. A changed message with that ID conflicts. QUEUED and ACCEPTED do not prove handset delivery; UNCERTAIN requires reconciliation and must not cause a new send intent. STOP and withdrawn permission block future effects. Incoming messages still create canonical tasks and use `atlas_sms_turns inspect`; its private result includes current incoming text, Atlas context and recent authorized outgoing text. Text expires after the bounded retention window; task history contains references rather than phone-message bodies.
+
+No live message is implied by configuring permission or discovering a route. For an initial own-phone trial, obtain approval for the actual message and check remaining aggregate cost authority before sending. iMessage remains a separate provider/onboarding effort; no iMessage support, native host execution, live carrier delivery or universal harness compatibility is established by these tools.

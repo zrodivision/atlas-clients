@@ -1679,6 +1679,83 @@
         "idempotentHint": true,
         "openWorldHint": true
       }
+    },
+    {
+      "name": "atlas_sms_send",
+      "description": "Discover explicitly owner-consented SMS initiation routes, queue a short text to one bound verified phone, or reconcile a saved requestId. Requires exact installation, sms:send and tasks:read. No phone/destination override, campaigns, new purpose, attachments or silent transport fallback. Save requestId and text before send; unknown outcomes are never automatically retried. QUEUED/ACCEPTED are not delivery. Incoming content and context use atlas_sms_turns.",
+      "inputSchema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "const": "routes"
+              }
+            },
+            "required": [
+              "action"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "const": "send"
+              },
+              "routeId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "action",
+              "routeId",
+              "requestId",
+              "text"
+            ]
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "action": {
+                "const": "status"
+              },
+              "routeId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "action",
+              "routeId",
+              "requestId"
+            ]
+          }
+        ],
+        "type": "object"
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "resources": [
