@@ -1603,7 +1603,7 @@
     },
     {
       "name": "atlas_call_turns",
-      "description": "Inspect a currently authorized private caller transcript or queue one bounded plain-text reply on its exact existing call. Requires explicit own-phone transcription consent, exact installation and calls:read/calls:reply scopes. No dial, answer, transfer, number, SSML, media or provider URL override. Retain requestId and exact text before reply; uncertain effects are never resent. Command acceptance does not prove audible playback, task completion, native host audio or memory access.",
+      "description": "Fulfill one explicitly requested and transcription-consented own-phone callback, inspect its private caller turn, or queue one bounded plain-text reply on that same call. Fulfillment can queue a paid call and requires calls:request in addition to calls:read and task access; replies separately require calls:reply. Exact current installation, consent and finite operator limits apply. No arbitrary dial, destination, answer, transfer, media, URL or SSML selector. Retain requestId and exact intent; uncertain effects must never be resent. No native host audio, continuous dialog, audible-delivery or implicit memory claim.",
       "inputSchema": {
         "type": "object",
         "oneOf": [
@@ -1647,6 +1647,27 @@
               "turnId",
               "requestId",
               "text"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "action": {
+                "const": "fulfill"
+              },
+              "callbackRequestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "action",
+              "callbackRequestId",
+              "requestId"
             ],
             "additionalProperties": false
           }

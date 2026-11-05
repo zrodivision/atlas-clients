@@ -1,7 +1,7 @@
 {
   "version": "0.13.0",
-  "skillSha256": "400c5ddafa3490b6be7db60010f4ddc90d037d405990158d8433e51090f128e8",
-  "catalogSha256": "db02f2a9a0dfef8d9ae492e4437c0fd059bc78b2d82526f12c31d10685cf5d40",
+  "skillSha256": "6c6ba564e0d6b1039f524b9ad90ee9ff284395a5e802c798baeb1f66e8c4ffc9",
+  "catalogSha256": "c12fb3eacbe4e9b5c6fa9bae72159c8dfd8283eb3491ec443ddb686208c7c826",
   "surfaces": {
     "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority. The Developers section owns scoped app-key issuance/revocation and a draft Lines API reference; the inline App links to the Console and never issues keys. Conversations supports account-only human contact/task interaction alongside advanced Line activity; optional GPT-Live voice is explicitly configured and live-unverified.",
     "atlas_registration_inspect": "Skill/CLI inspection; MCP App header uses atlas_console.",
@@ -34,6 +34,6 @@
     "atlas_agent_participation": "MCP read-only installation-specific enrollment/profile discovery; human enrollment/revocation uses owner API. Managed identity bundles use same Line and scopes; no live provisioning or implicit vault/contact grant.",
     "atlas_host_notifications": "Read-only MCP delivery state; Dots native events protocol uses same authenticated installation; Grok routine URL/bearer is owner-only. No provider credentials returned. Owner API consent first, UI deliberately deferred.",
     "atlas_sms_turns": "MCP and scoped Lines API share exact installation-bound text-turn inspection and one fixed-recipient bounded reply. Human owner provisions own verified phone, current purpose consent, number/source/recipient route and expiry through the owner API. No third-party or arbitrary-recipient sends, campaigns, MMS, voice bridge, implicit vault access or native host/thread acceptance. CLI/inline/mobile UI deferred; public catalog and guide require reviewed pin before release.",
-    "atlas_call_turns": "MCP and scoped Lines API inspect an exact installation-bound private caller turn and queue one plain-text response on its existing call. Separate own-phone transcription consent, finite operator allowance and callback authority required. One final phrase and one reply; no native host audio, streaming, arbitrary calls, implicit memory, universal host continuity or live acceptance claim. Owner setup API only; UI deferred."
+    "atlas_call_turns": "Account UI atomically records one verified-own-phone callback/transcription purpose consent and canonical task wake. Reads/reloads never request a call. MCP/scoped Lines API fulfill only that exact prepared callback with separate calls:request authority, inspect private input and queue one plain-text reply. Stop requests revoke authority and request teardown; they do not prove audio ceased. One final phrase and reply only; continuous dialog, barge-in, native host audio and host-private thread/memory acceptance remain unverified or unsupported."
   }
 }
