@@ -1,7 +1,7 @@
 /** Native harness registration and login; each host owns its credentials. */
 import { spawn, spawnSync } from "node:child_process";
 import { createInterface } from "node:readline";
-const hosted = "https://atlas-production-9abf.up.railway.app";
+const hosted = "https://connectatlas.io";
 async function run(command: string, args: string[]) {
   await new Promise<void>((resolve, reject) => {
     const child = spawn(command, args, { stdio: "inherit" });

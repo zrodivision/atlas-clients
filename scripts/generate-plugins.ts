@@ -2,7 +2,7 @@
 import { mkdir, writeFile, readFile, readdir } from "node:fs/promises";
 import { join } from "node:path";
 import { packageFiles, root } from "./client-package.js";
-const origin = "https://atlas-production-9abf.up.railway.app";
+const origin = "https://connectatlas.io";
 const generated = await packageFiles(root, origin);
 const files: Record<string, string> = Object.fromEntries(
   Object.entries(generated).map(([p, v]) => ["plugins/atlas-hosted/" + p, v]),

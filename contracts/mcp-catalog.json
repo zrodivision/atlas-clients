@@ -1542,6 +1542,64 @@
         "readOnlyHint": true,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "atlas_sms_turns",
+      "description": "Inspect an authorized incoming text turn or queue its single bounded SMS reply. Requires exact current owner-consented route and installation. Destination is fixed; never supply a phone or provider URL. QUEUED/ACCEPTED do not prove delivery. Retain requestId and exact text before reply; unknown effects must never be resent. This tool grants no context or general messaging access.",
+      "inputSchema": {
+        "type": "object",
+        "oneOf": [
+          {
+            "properties": {
+              "action": {
+                "const": "inspect"
+              },
+              "turnId": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            "required": [
+              "action",
+              "turnId"
+            ],
+            "additionalProperties": false
+          },
+          {
+            "properties": {
+              "action": {
+                "const": "reply"
+              },
+              "turnId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "requestId": {
+                "type": "string",
+                "format": "uuid"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 160
+              }
+            },
+            "required": [
+              "action",
+              "turnId",
+              "requestId",
+              "text"
+            ],
+            "additionalProperties": false
+          }
+        ]
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
     }
   ],
   "resources": [

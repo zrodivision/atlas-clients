@@ -1,7 +1,7 @@
 {
   "name": "@zrodivision/atlas-clients",
   "private": true,
-  "version": "0.12.2",
+  "version": "0.13.0",
   "type": "module",
   "engines": {
     "node": ">=22.23.1"
@@ -15,7 +15,7 @@
     "test:mcp-install": "tsx scripts/mcp-install-tests.ts",
     "test:cli-package": "tsx scripts/cli-package-tests.ts",
     "package:client": "tsx scripts/client-package.ts build",
-    "package:hosted": "tsx scripts/client-package.ts build-hosted https://atlas-production-9abf.up.railway.app",
+    "package:hosted": "tsx scripts/client-package.ts build-hosted https://connectatlas.io",
     "package:cli": "tsx scripts/package-cli.ts",
     "package:release": "tsx scripts/package-release.ts",
     "client:status": "tsx scripts/client-package.ts status",

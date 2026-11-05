@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 import { buildPackage } from "./client-package.js";
 const root = resolve(import.meta.dirname, "..");
 const origin =
-  process.env.ATLAS_URL ?? "https://atlas-production-9abf.up.railway.app";
+  process.env.ATLAS_URL ?? "https://connectatlas.io";
 await mkdir(join(root, "build"), { recursive: true });
 const parent = await mkdtemp(join(root, "build/atlas-release-"));
 const marketplace = join(parent, "marketplace");

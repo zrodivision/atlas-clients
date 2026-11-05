@@ -20,7 +20,7 @@ import {
 } from "@modelcontextprotocol/sdk/client/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
-const hosted = "https://atlas-production-9abf.up.railway.app";
+const hosted = "https://connectatlas.io";
 export async function oauthCli(
   command: string,
   name?: string,
