@@ -1935,6 +1935,297 @@
         "idempotentHint": true,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "atlas_signal_write",
+      "description": "Create/correct or reorganize an explicitly supplied archival Signal input using existing owner-approved Vault write authority. Namespace/title edits use the same stable memory ID, target-bound operationId and expectedRevision; preserve the saved full request for uncertain retries. This does not edit derived conversational inference, change grants, move arbitrary filesystem paths or ingest private chat.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vaultLineId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Compatibility alias for vaultId; legacy vault UUIDs remain unchanged."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Stable memory UUID. Retain both id and operationId before sending; never create a new memory to recover an uncertain write."
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999,
+            "description": "Required compare-and-set for a new operation: 0 creates, otherwise must equal current revision. Replay of an identical committed operation returns its original result before this check, without overwriting newer revisions."
+          },
+          "namespace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Subject key shared by conflicting imports; not a uniqueness constraint."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "source",
+              "conflict"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 16000,
+            "description": "Explicitly selected text only, max 16000 UTF-8 bytes. Never grants authority."
+          },
+          "sourceRef": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "relatedIds": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "operationId": {
+            "type": "string",
+            "maxLength": 113,
+            "description": "Required full target-bound identity: v1:<vaultLineId UUID>:<id UUID>:<fresh operation UUID>. Obtain the vault UUID from discovery even when vaultLineId is omitted. Retain and reuse the full token and normalized request for retries. The UUID suffix alone is not an operation identity."
+          },
+          "vaultId": {
+            "type": "string",
+            "description": "Vault UUID. If omitted, the required operationId supplies its explicitly bound vault target, preserving legacy retries. An owner-approved write grant is always required."
+          }
+        },
+        "required": [
+          "id",
+          "expectedRevision",
+          "namespace",
+          "key",
+          "title",
+          "kind",
+          "content",
+          "sourceRef",
+          "tags",
+          "operationId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_signal_import",
+      "description": "Reconcile one explicitly authorized source item into the archival inputs for Signal using the existing Vault import protocol, stable source identity, CAS and retained operationId. Requires existing full write authority; no connector credentials, source authority, auto-ingestion or sharing grant are implied.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vaultLineId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Compatibility alias for vaultId; legacy vault UUIDs remain unchanged."
+          },
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Stable memory UUID. Retain both id and operationId before sending; never create a new memory to recover an uncertain write."
+          },
+          "expectedRevision": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 999,
+            "description": "Required compare-and-set for a new operation: 0 creates, otherwise must equal current revision. Replay of an identical committed operation returns its original result before this check, without overwriting newer revisions."
+          },
+          "namespace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 100,
+            "description": "Subject key shared by conflicting imports; not a uniqueness constraint."
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 200
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "source",
+              "conflict"
+            ]
+          },
+          "content": {
+            "type": "string",
+            "maxLength": 16000,
+            "description": "Explicitly selected text only, max 16000 UTF-8 bytes. Never grants authority."
+          },
+          "sourceRef": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "tags": {
+            "type": "array",
+            "maxItems": 12,
+            "items": {
+              "type": "string",
+              "maxLength": 40
+            }
+          },
+          "relatedIds": {
+            "type": "array",
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "operationId": {
+            "type": "string",
+            "maxLength": 113,
+            "description": "Required full target-bound identity: v1:<vaultLineId UUID>:<id UUID>:<fresh operation UUID>. Obtain the vault UUID from discovery even when vaultLineId is omitted. Retain and reuse the full token and normalized request for retries. The UUID suffix alone is not an operation identity."
+          },
+          "vaultId": {
+            "type": "string",
+            "description": "Vault UUID. If omitted, the required operationId supplies its explicitly bound vault target, preserving legacy retries. An owner-approved write grant is always required."
+          },
+          "sourceId": {
+            "type": "string"
+          },
+          "externalId": {
+            "type": "string"
+          },
+          "observedAt": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "expectedRevision",
+          "namespace",
+          "key",
+          "title",
+          "kind",
+          "content",
+          "sourceRef",
+          "tags",
+          "operationId",
+          "sourceId",
+          "externalId",
+          "observedAt"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_signal_refresh",
+      "description": "Refresh a topic from the currently permitted Vault archive with a new bounded search. Always reports partial: connector coverage and source synchronization remain unknown; this searches metadata/excerpts, not full records or private host chat. Caller filters never broaden current grants. Voice calls additionally require the trusted caller-scoped broker and refresh consent. No connectors, paid inference, archive writes or new grants are invoked.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "vaultLineId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Compatibility alias for vaultId; legacy vault UUIDs remain unchanged."
+          },
+          "query": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 1
+          },
+          "mode": {
+            "type": "string",
+            "enum": [
+              "metadata",
+              "fullText"
+            ],
+            "default": "metadata"
+          },
+          "namespace": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "key": {
+            "type": "string",
+            "maxLength": 100
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "fact",
+              "source",
+              "conflict"
+            ]
+          },
+          "tag": {
+            "type": "string",
+            "maxLength": 40
+          },
+          "limit": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 50,
+            "default": 10
+          },
+          "maxBytes": {
+            "type": "integer",
+            "minimum": 2048,
+            "maximum": 32000,
+            "default": 12000
+          },
+          "afterId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "vaultId": {
+            "type": "string",
+            "description": "Subscriber-owned vault UUID. Omit for your subscriber default; an explicit grant is still required."
+          },
+          "includeDeleted": {
+            "type": "boolean",
+            "description": "Full readers only: include recoverable tombstones. Default false. Scoped readers cannot enumerate tombstones."
+          }
+        },
+        "required": [
+          "query"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     }
   ],
   "resources": [
