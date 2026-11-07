@@ -8,7 +8,7 @@
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-Draft source and compatibility metadata are `0.12.2`. Publishing a release, deploying the service and native host acceptance are separate steps. The installer follows published stable releases; use `--version v0.12.2` to request this version after its assets are published.
+Draft source and compatibility metadata are `0.13.15`. Publishing a release, deploying the service and native host acceptance are separate steps. The installer follows published stable releases; use `--version v0.13.15` to request this version after its assets are published.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
