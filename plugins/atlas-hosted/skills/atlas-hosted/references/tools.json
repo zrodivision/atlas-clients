@@ -2343,6 +2343,89 @@
         "idempotentHint": true,
         "openWorldHint": false
       }
+    },
+    {
+      "name": "atlas_signal_capabilities",
+      "description": "Read explicit current capability grants for this exact connected installation and Signal profile. Does not approve tools or share additional data. Read/archive capabilities remain bounded to owner-selected records. No synchronization claim.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "profileId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "profileId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
+    },
+    {
+      "name": "atlas_signal_invoke",
+      "description": "Execute one explicitly owner-granted Signal capability as this connected installation. archive.search/read only access selected current records; call.request queues a paid call to the exact already-approved owner handset route and accepts empty arguments only. Persist requestId and arguments before invoking. On an unknown/lost outcome inspect atlas_signal_operation; never use a new requestId to retry an uncertain effect. Cannot approve, expand permissions or choose destinations, context, model, budget or consent.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "arguments": {
+            "type": "object"
+          }
+        },
+        "required": [
+          "grantId",
+          "requestId",
+          "arguments"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": false,
+        "destructiveHint": true,
+        "idempotentHint": true,
+        "openWorldHint": true
+      }
+    },
+    {
+      "name": "atlas_signal_operation",
+      "description": "Inspect a prior exact-installation Signal operation by its saved requestId, including after grant revocation. No new action or private archive output. Current call state is derived, unknown remains unknown, provider acceptance is not proof of delivery or task completion.",
+      "inputSchema": {
+        "type": "object",
+        "properties": {
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "requestId": {
+            "type": "string",
+            "format": "uuid"
+          }
+        },
+        "required": [
+          "grantId",
+          "requestId"
+        ],
+        "additionalProperties": false
+      },
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      }
     }
   ],
   "resources": [
