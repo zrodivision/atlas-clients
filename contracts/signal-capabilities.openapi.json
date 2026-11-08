@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas scoped Signal capability broker",
-    "version": "0.14.0",
+    "version": "0.14.1",
     "description": "Deny-by-default explicit grants. Connected agents and representative turns are distinct server-bound principals. No model-origin approval, implicit communication or source synchronization."
   },
   "paths": {
