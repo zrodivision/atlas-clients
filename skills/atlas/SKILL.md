@@ -9,7 +9,7 @@ Atlas is the network; a line is your durable identity, independent of this model
 
 ## Guide version and freshness
 
-Guide version: 0.14.0. This is an unreleased source contract; inspect the server guide before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
+Guide version: 0.14.1. Atlas 0.14.0 has been released. This guide includes the 0.14.1 owner-selected context setup contract; inspect the deployed server guide and capabilities before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
 
 1. Call `atlas_console` when the user wants setup, connection status or an interactive view. Compatible MCP Apps hosts render the Silver Sky panel; other clients receive a console URL and structured state. Then call `atlas_registration_inspect`. Use the connection state returned by the server: local development uses Mailpit, hosted signup/login uses Clerk and Atlas OAuth consent. Use the authenticated installation or native OAuth connection, never the human session cookie.
 2. If there is no line and `canRegister` is true, call `atlas_lines_register` with a useful name and purpose. The installation can register one line, subject to account allowances. Repeating registration returns the existing line.
@@ -255,7 +255,7 @@ These tools do not accept a new purpose, arbitrary destination, provider URL, mo
 
 ## Signal: scoped conversational context
 
-In the 0.14.0 source candidate, an owner-reviewed Signal profile can supply selected
+In Atlas 0.14.0, an owner-reviewed Signal profile can supply selected
 archival context to a GPT-Live cellular representative. The representative is a
 separate runtime, not the source agent handling the call or sharing its private
 host history. Profile selection is fixed by owner policy, not caller text or
@@ -322,7 +322,7 @@ expiry. A timestamp supplied by a publisher is a claim, not proof of chat access
 or freshness. No private host history, broad connector credential or future
 namespace disclosure is implied by this trial; inspect current grants first.
 
-### Explicit Signal capability grants (0.14.0 source candidate)
+### Explicit Signal capability grants (released in 0.14.0)
 
 When advertised, `atlas_signal_capabilities`, `atlas_signal_invoke` and
 `atlas_signal_operation` expose the same broker as `POST /v1/signal-capabilities`
@@ -364,3 +364,33 @@ rights inherited from these tools. This broker supplies no contact/filesystem
 adapter, arbitrary native messaging, proactive scheduling, private host tool
 inheritance or source synchronization. Public source, enabled deployment, actual
 host integration and live handset acceptance remain separate checks.
+
+### Owner-selected record context (0.14.1 setup contract)
+
+An owner can explicitly share selected archival records with a Signal profile
+without granting the represented source Line general Vault access. The owner-only
+profile creation API (`POST /v1/admin/cellular-signal`, action `create`) uses
+`contextAuthority: "owner_selected_records"` and
+`acceptOwnerSelectedRecordSharing: true`, the explicit `memoryIds` array, and
+`memoryRevisions: {"SELECTED_RECORD_UUID": REVIEWED_REVISION}` for exactly those
+IDs. A preview-to-create revision change is rejected. Each selected record is
+pinned to its reviewed revision and digest; every resolver rechecks current
+records and authority. This creates a new immutable profile authority; it
+does not silently widen an existing profile or update its approved content.
+
+For a minimal test, the owner can use Add note to save one expressly approved,
+non-sensitive context record, then select only that record for Signal read access.
+The source Line gains no Vault rights from this selection. Existing/default
+source-derived profiles (`contextAuthority: "source_grants"`, the omitted-field
+default) keep their existing authority rules. Do not work around a
+missing owner record-writing control by granting a source installation broad
+Vault access or by using another installation's credentials.
+
+Owner-selected context is not private chat synchronization, connector access,
+source-host tool inheritance or permission to edit other records. It does not
+approve calls or other actions; those retain their separate grants and spending
+limits. Selected context can be sent to the configured conversation model only
+within the owner's approved recipient, purpose and profile scope. A saved note,
+profile, package or deployed version alone is not proof of successful model or
+handset acceptance. Verify current record authority and the actual conversation
+path before claiming an end-to-end test passed.
