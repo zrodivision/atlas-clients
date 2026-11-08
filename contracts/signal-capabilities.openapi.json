@@ -1,0 +1,462 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Atlas scoped Signal capability broker",
+    "version": "0.14.0",
+    "description": "Deny-by-default explicit grants. Connected agents and representative turns are distinct server-bound principals. No model-origin approval, implicit communication or source synchronization."
+  },
+  "paths": {
+    "/v1/signal-capabilities": {
+      "post": {
+        "operationId": "signalCapabilityCommand",
+        "security": [
+          {
+            "installationBearer": []
+          }
+        ],
+        "x-atlas-required-scopes": [
+          "context:read"
+        ],
+        "x-atlas-call-invoke-additional-scopes": [
+          "calls:read",
+          "calls:request"
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "manifest"
+                      },
+                      "profileId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "profileId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "invoke"
+                      },
+                      "grantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "requestId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "arguments": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "grantId",
+                      "requestId",
+                      "arguments"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "status"
+                      },
+                      "grantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "requestId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "grantId",
+                      "requestId"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current permission-checked result. Admission is not delivery. Inspect operation effectStatus after uncertain outcomes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/v1/admin/signal-capabilities": {
+      "post": {
+        "operationId": "ownerSignalCapabilityCommand",
+        "security": [
+          {
+            "humanSession": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "list"
+                      },
+                      "profileId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "profileId"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "create"
+                      },
+                      "profileId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "requestId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "actorKind": {
+                        "enum": [
+                          "connected_agent",
+                          "representative"
+                        ]
+                      },
+                      "capability": {
+                        "enum": [
+                          "archive.search",
+                          "archive.read",
+                          "call.request"
+                        ]
+                      },
+                      "routeId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "label": {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 80
+                      },
+                      "maxOperations": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 100
+                      },
+                      "maxOperationMicrousd": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1000000000000
+                      },
+                      "totalBudgetMicrousd": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 1000000000000
+                      },
+                      "expiresInHours": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 168
+                      },
+                      "acceptCapabilityUse": {
+                        "const": true
+                      },
+                      "acceptApprovedRouteCalls": {
+                        "type": "boolean"
+                      },
+                      "acceptCallsContinuingAfterConversation": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "profileId",
+                      "requestId",
+                      "actorKind",
+                      "capability",
+                      "label",
+                      "maxOperations",
+                      "maxOperationMicrousd",
+                      "totalBudgetMicrousd",
+                      "expiresInHours",
+                      "acceptCapabilityUse"
+                    ],
+                    "additionalProperties": false,
+                    "allOf": [
+                      {
+                        "if": {
+                          "properties": {
+                            "capability": {
+                              "const": "call.request"
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "routeId",
+                            "acceptApprovedRouteCalls"
+                          ],
+                          "properties": {
+                            "acceptApprovedRouteCalls": {
+                              "const": true
+                            },
+                            "maxOperationMicrousd": {
+                              "minimum": 1
+                            }
+                          }
+                        },
+                        "else": {
+                          "not": {
+                            "required": [
+                              "routeId"
+                            ]
+                          },
+                          "properties": {
+                            "maxOperationMicrousd": {
+                              "const": 0
+                            },
+                            "totalBudgetMicrousd": {
+                              "const": 0
+                            },
+                            "acceptApprovedRouteCalls": {
+                              "const": false
+                            },
+                            "acceptCallsContinuingAfterConversation": {
+                              "const": false
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "if": {
+                          "properties": {
+                            "actorKind": {
+                              "const": "representative"
+                            },
+                            "capability": {
+                              "const": "call.request"
+                            }
+                          }
+                        },
+                        "then": {
+                          "required": [
+                            "acceptCallsContinuingAfterConversation"
+                          ],
+                          "properties": {
+                            "acceptCallsContinuingAfterConversation": {
+                              "const": true
+                            }
+                          }
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "action": {
+                        "const": "revoke"
+                      },
+                      "profileId": {
+                        "type": "string",
+                        "format": "uuid"
+                      },
+                      "grantId": {
+                        "type": "string",
+                        "format": "uuid"
+                      }
+                    },
+                    "required": [
+                      "action",
+                      "profileId",
+                      "grantId"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Current permission-checked result. Admission is not delivery. Inspect operation effectStatus after uncertain outcomes.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "installationBearer": {
+        "type": "http",
+        "scheme": "bearer"
+      },
+      "humanSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "atlas_session"
+      }
+    },
+    "schemas": {
+      "OperationReceipt": {
+        "type": "object",
+        "required": [
+          "operationId",
+          "grantId",
+          "capability",
+          "state",
+          "actorKind",
+          "actorBinding",
+          "reservedMicrousd",
+          "delivered"
+        ],
+        "properties": {
+          "operationId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "grantId": {
+            "type": "string",
+            "format": "uuid"
+          },
+          "capability": {
+            "enum": [
+              "archive.search",
+              "archive.read",
+              "call.request"
+            ]
+          },
+          "state": {
+            "enum": [
+              "ADMITTED",
+              "COMPLETED",
+              "QUEUED",
+              "RUNNING",
+              "FAILED",
+              "CANCELLED",
+              "OUTCOME_UNKNOWN"
+            ]
+          },
+          "admissionState": {
+            "enum": [
+              "ADMITTED",
+              "COMPLETED",
+              "QUEUED",
+              "OUTCOME_UNKNOWN"
+            ]
+          },
+          "actorKind": {
+            "enum": [
+              "connected_agent",
+              "representative"
+            ]
+          },
+          "actorBinding": {
+            "enum": [
+              "installation",
+              "native_text_turn"
+            ]
+          },
+          "reservedMicrousd": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "effectId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid"
+          },
+          "delivered": {
+            "type": "null"
+          },
+          "grantCurrent": {
+            "type": "boolean"
+          },
+          "effectStatus": {
+            "type": "object",
+            "required": [
+              "callState",
+              "sessionState",
+              "outcomeUnknown",
+              "providerAccepted",
+              "closeConfirmed"
+            ],
+            "properties": {
+              "callState": {
+                "type": "string"
+              },
+              "sessionState": {
+                "type": "string"
+              },
+              "outcomeUnknown": {
+                "type": "boolean"
+              },
+              "providerAccepted": {
+                "type": [
+                  "boolean",
+                  "null"
+                ]
+              },
+              "closeConfirmed": {
+                "type": "boolean"
+              }
+            }
+          },
+          "result": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  }
+}
