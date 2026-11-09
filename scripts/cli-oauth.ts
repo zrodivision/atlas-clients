@@ -20,6 +20,7 @@ import {
 } from "@modelcontextprotocol/sdk/client/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { workerCommand } from "./worker-cli.js";
 const hosted = "https://connectatlas.io";
 export async function oauthCli(
   command: string,
@@ -301,6 +302,8 @@ export async function oauthCli(
       await save();
       result = { profile, identity };
     } else if (command === "list") result = await client.listTools();
+    else if (command === "workers" && name)
+      result = await workerCommand(client, name, argument);
     else if (command === "call" && name)
       result = await client.callTool({ name, arguments: JSON.parse(argument) });
     else if (command === "read" && name)

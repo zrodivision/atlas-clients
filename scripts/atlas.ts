@@ -3,6 +3,13 @@
 import { distribution, version } from "./distribution.js";
 import { oauthCli } from "./cli-oauth.js";
 import { installMcp } from "./mcp-install.js";
+import {
+  WorkerCommandError,
+  workerHelp,
+  workerCommand,
+  readWorkerArgument,
+  parseWorkerRequest,
+} from "./worker-cli.js";
 import { constants } from "node:fs";
 import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -49,9 +56,26 @@ try {
   if (!/^[a-zA-Z0-9_-]{1,60}$/.test(profile))
     throw Error("Invalid profile name");
   const path = join(directory, profile + ".json");
-  const [command = "help", name, args = "{}"] = process.argv.slice(2);
+  const [command = "help", name, rawArgs = "{}", ...extra] =
+    process.argv.slice(2);
+  let args = rawArgs;
+  if (command === "workers") {
+    if (
+      extra.length ||
+      ((name === "help" || name === "capabilities") && process.argv.length > 4)
+    )
+      throw new WorkerCommandError(
+        "Use atlas workers help for supported commands.",
+      );
+    if (name && name !== "help" && name !== "capabilities") {
+      args = await readWorkerArgument(rawArgs);
+      parseWorkerRequest(name, args);
+    }
+  }
   if (await distribution(command, process.argv.slice(3))) {
     // Distribution commands do not require an Atlas login.
+  } else if (command === "workers" && (!name || name === "help")) {
+    output(workerHelp);
   } else if (
     command !== "help" &&
     command !== "install" &&
@@ -76,6 +100,7 @@ try {
         "list",
         "call TOOL JSON",
         "read URI",
+        "workers help (optional, discovery-gated worker interface)",
       ],
       config: ["ATLAS_URL", "ATLAS_HOME", "ATLAS_PROFILE"],
       approval:
@@ -162,6 +187,8 @@ try {
         }),
       );
     else if (command === "list") output(await client.listTools());
+    else if (command === "workers" && name)
+      output(await workerCommand(client, name, args));
     else if (command === "call" && name)
       output(await client.callTool({ name, arguments: JSON.parse(args) }));
     else if (command === "read" && name)
@@ -169,7 +196,12 @@ try {
     else throw Error("Use help for supported commands");
   }
 } catch (error) {
-  if (["update", "skill", "version", "--version"].includes(process.argv[2])) {
+  if (error instanceof WorkerCommandError) {
+    console.error(error.message);
+    process.exitCode = 1;
+  } else if (
+    ["update", "skill", "version", "--version"].includes(process.argv[2])
+  ) {
     console.error(
       error instanceof Error
         ? error.message
