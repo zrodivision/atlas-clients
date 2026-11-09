@@ -2,6 +2,8 @@
 import { constants } from "node:fs";
 import {
   mkdir,
+  access,
+  stat,
   open,
   readFile,
   lstat,
@@ -9,7 +11,7 @@ import {
   rename,
   unlink,
 } from "node:fs/promises";
-import { resolve, join } from "node:path";
+import { resolve, join, delimiter } from "node:path";
 import { homedir } from "node:os";
 import { randomBytes, randomUUID, timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
@@ -22,11 +24,113 @@ import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
 import { workerCommand } from "./worker-cli.js";
 const hosted = "https://connectatlas.io";
+/** Local hints only: this never opens a browser, binds a port, or contacts Atlas. */
+export async function loginReadiness(
+  env: NodeJS.ProcessEnv = process.env,
+  platform: NodeJS.Platform = process.platform,
+) {
+  const launcher =
+    platform === "darwin"
+      ? "open"
+      : platform === "win32"
+        ? "rundll32"
+        : "xdg-open";
+  const executable = platform === "win32" ? launcher + ".exe" : launcher;
+  const launcherFound = (
+    await Promise.all(
+      (env.PATH ?? "")
+        .split(platform === "win32" ? ";" : delimiter)
+        .filter(Boolean)
+        .map(async (directory) => {
+          try {
+            await access(join(directory, executable), constants.X_OK);
+            return (await stat(join(directory, executable))).isFile();
+          } catch {
+            return false;
+          }
+        }),
+    )
+  ).some(Boolean);
+  const remoteSession = Boolean(
+    env.SSH_CONNECTION || env.SSH_CLIENT || env.SSH_TTY,
+  );
+  const displayAvailable =
+    platform === "darwin" ||
+    platform === "win32" ||
+    Boolean(env.DISPLAY || env.WAYLAND_DISPLAY);
+  // xdg-open can use a configured browser handler without DISPLAY, such as a
+  // WSL handler. Its value is never executed by diagnosis or printed.
+  const browserOverridePresent = Boolean(env.BROWSER);
+  const blockers = [
+    ...(!displayAvailable && !browserOverridePresent
+      ? ["local_browser_display_unavailable"]
+      : []),
+    ...(!launcherFound ? ["browser_launcher_unavailable"] : []),
+  ];
+  return {
+    schemaVersion: 1,
+    kind: "atlas.cli.login_readiness",
+    status: blockers.length
+      ? "local_browser_login_blocked"
+      : "local_browser_login_possible",
+    canAttemptLocalBrowserLogin: blockers.length === 0,
+    blockers,
+    warnings: [
+      ...(remoteSession ? ["remote_session_loopback_unverified"] : []),
+      ...(browserOverridePresent ? ["browser_handler_unverified"] : []),
+    ],
+    checks: {
+      platform,
+      launcher,
+      launcherFound,
+      displayAvailable,
+      browserOverridePresent,
+      remoteSession,
+    },
+    flow: "authorization_code_pkce_loopback",
+    callback: {
+      host: "127.0.0.1",
+      port: "ephemeral",
+      browserMustReachCliLoopback: true,
+    },
+    deviceFlow: "not_implemented",
+    manualCallback: "not_implemented",
+    networkChecked: false,
+    serverChecked: false,
+    browserLaunchChecked: false,
+    credentialsRead: false,
+    credentialsSharedWithNativeMcp: false,
+    authorizationCreated: false,
+    next: blockers.length
+      ? "Use Atlas native hosted MCP in a host with its own sign-in, or run atlas auth login in a local desktop terminal with a browser on the same computer. Do not copy host credentials into the CLI."
+      : "Run atlas auth login only when the user wants a separate CLI connection and can approve it in a browser on this computer. Local checks do not verify browser access, callback binding, or server support.",
+  };
+}
+
+export class LoginReadinessError extends Error {
+  readonly code = "ATLAS_LOCAL_BROWSER_LOGIN_BLOCKED";
+  constructor(readonly readiness: Awaited<ReturnType<typeof loginReadiness>>) {
+    super(
+      "Local browser login is unavailable. Run atlas auth diagnose for safe next steps.",
+    );
+  }
+}
+
 export async function oauthCli(
   command: string,
   name?: string,
   argument = "{}",
 ): Promise<boolean> {
+  if (command === "auth" && name === "diagnose") {
+    console.log(JSON.stringify(await loginReadiness(), null, 2));
+    return true;
+  }
+  // Fail before creating a directory, taking a profile lock, or making OAuth requests.
+  if (command === "auth" && name === "login") {
+    const readiness = await loginReadiness();
+    if (!readiness.canAttemptLocalBrowserLogin)
+      throw new LoginReadinessError(readiness);
+  }
   const dir = resolve(
     process.env.ATLAS_HOME ?? join(homedir(), ".config", "atlas"),
   );
@@ -140,7 +244,8 @@ export async function oauthCli(
       console.log(JSON.stringify({ profile, disconnected: true }));
       return true;
     }
-    if (isAuth && name !== "login") throw Error("Use auth login|status|logout");
+    if (isAuth && name !== "login")
+      throw Error("Use auth diagnose|login|status|logout");
     if (isAuth && data)
       throw Error(
         "Profile exists; use whoami, or auth logout before replacing it. Select ATLAS_PROFILE for an independent connection.",

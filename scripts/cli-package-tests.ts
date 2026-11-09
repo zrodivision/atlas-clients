@@ -9,6 +9,7 @@ import {
   symlink,
   rm,
   readFile,
+  access,
 } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -60,9 +61,36 @@ try {
   const help = run("help");
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /auth/);
+  for (const alias of ["--help", "-h"]) {
+    const result = run(alias);
+    assert.equal(result.status, 0, result.stderr);
+    assert.deepEqual(JSON.parse(result.stdout), JSON.parse(help.stdout));
+    assert.equal(run("workers", alias).status, 0);
+    const authHelp = run("auth", alias);
+    assert.equal(authHelp.status, 0, authHelp.stderr);
+    assert.ok(JSON.parse(authHelp.stdout).commands.includes("auth diagnose"));
+  }
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
   assert.match(workers.stdout, /Optional client interface/);
+  for (const action of [
+    "create",
+    "inspect",
+    "run",
+    "cancel",
+    "checkpoint",
+    "restore",
+  ]) {
+    const actionHelp = run("workers", action, "--help");
+    assert.equal(actionHelp.status, 0, actionHelp.stderr);
+    const details = JSON.parse(actionHelp.stdout);
+    assert.equal(details.action, action);
+    assert.equal(details.authority, "guidance_only");
+    assert.ok(details.cliFields.includes("workerId"));
+    const validationHelp = run("workers", "validate", action, "-h");
+    assert.equal(validationHelp.status, 0, validationHelp.stderr);
+    assert.deepEqual(JSON.parse(validationHelp.stdout), details);
+  }
   const validated = run(
     "workers",
     "validate",
@@ -85,6 +113,46 @@ try {
     "https://connectatlas.io/mcp",
   );
   const status = run("auth", "status");
+  for (const command of ["contract", "guide"]) {
+    const result = run("workers", command);
+    assert.equal(result.status, 0, result.stderr);
+    assert.equal(JSON.parse(result.stdout).authority, "guidance_only");
+    assert.equal(JSON.parse(result.stdout).availability, "source-only");
+  }
+  const diagnosis = run("auth", "diagnose");
+  assert.equal(diagnosis.status, 0, diagnosis.stderr);
+  assert.equal(JSON.parse(diagnosis.stdout).credentialsRead, false);
+  assert.equal(JSON.parse(diagnosis.stdout).networkChecked, false);
+  const blockedHome = join(scratch, "blocked-login-profile");
+  const blockedLogin = spawnSync(
+    process.execPath,
+    [
+      join(scratch, "node_modules/@zrodivision/atlas/dist/atlas.js"),
+      "auth",
+      "login",
+    ],
+    {
+      cwd: scratch,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        ATLAS_HOME: blockedHome,
+        ATLAS_PROFILE: "test",
+        PATH: "",
+        DISPLAY: "",
+        WAYLAND_DISPLAY: "",
+        BROWSER: "",
+        ATLAS_TOKEN: "synthetic-secret-must-not-leak",
+      },
+    },
+  );
+  assert.equal(blockedLogin.status, 1);
+  const blocked = JSON.parse(blockedLogin.stderr);
+  assert.equal(blocked.error, "ATLAS_LOCAL_BROWSER_LOGIN_BLOCKED");
+  assert.equal(blocked.authorizationCreated, false);
+  assert.equal(blocked.networkChecked, false);
+  assert.ok(!blockedLogin.stderr.includes("synthetic-secret"));
+  await assert.rejects(access(blockedHome), { code: "ENOENT" });
   assert.equal(status.status, 0, status.stderr);
   assert.equal(JSON.parse(status.stdout).configured, false);
   const profile = join(home, "test.json");

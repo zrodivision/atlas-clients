@@ -1,8 +1,13 @@
 #!/usr/bin/env node
 /** Atlas CLI. Human consent stays in the browser; native MCP hosts own separate credentials. */
 import { distribution, version } from "./distribution.js";
-import { oauthCli } from "./cli-oauth.js";
+import { LoginReadinessError, oauthCli } from "./cli-oauth.js";
 import { installMcp } from "./mcp-install.js";
+import {
+  workerActionHelp,
+  workerContract,
+  workerGuide,
+} from "./worker-guidance.js";
 import {
   WorkerCommandError,
   workerHelp,
@@ -57,12 +62,26 @@ try {
   if (!/^[a-zA-Z0-9_-]{1,60}$/.test(profile))
     throw Error("Invalid profile name");
   const path = join(directory, profile + ".json");
-  const [command = "help", name, rawArgs = "{}", ...extra] =
+  const [rawCommand = "help", rawName, rawArgs = "{}", ...extra] =
     process.argv.slice(2);
+  const command = ["--help", "-h"].includes(rawCommand) ? "help" : rawCommand;
+  const name = rawName && ["--help", "-h"].includes(rawName) ? "help" : rawName;
   let args = rawArgs;
   let validation: ReturnType<typeof validateWorkerIntent> | undefined;
+  const actionHelp =
+    command === "workers"
+      ? name === "validate" &&
+        extra.length === 1 &&
+        ["--help", "-h"].includes(extra[0])
+        ? workerActionHelp(rawArgs)
+        : name && extra.length === 0 && ["--help", "-h"].includes(rawArgs)
+          ? workerActionHelp(name)
+          : undefined
+      : undefined;
   if (command === "workers") {
-    if (name === "validate") {
+    if (actionHelp) {
+      // Action help is offline and never interpreted as request JSON.
+    } else if (name === "validate") {
       if (extra.length !== 1)
         throw new WorkerCommandError(
           "Use atlas workers validate ACTION JSON|@request.json.",
@@ -73,12 +92,17 @@ try {
       );
     } else if (
       extra.length ||
-      ((name === "help" || name === "capabilities") && process.argv.length > 4)
+      (["help", "capabilities", "contract", "guide"].includes(name) &&
+        process.argv.length > 4)
     )
       throw new WorkerCommandError(
         "Use atlas workers help for supported commands.",
       );
-    if (name && !["help", "capabilities", "validate"].includes(name)) {
+    if (
+      !actionHelp &&
+      name &&
+      !["help", "capabilities", "contract", "guide", "validate"].includes(name)
+    ) {
       args = await readWorkerArgument(rawArgs);
       parseWorkerRequest(name, args);
     }
@@ -89,6 +113,18 @@ try {
     output(workerHelp);
   } else if (validation) {
     output(validation);
+  } else if (actionHelp) {
+    output(actionHelp);
+  } else if (command === "workers" && name === "contract") {
+    output(workerContract());
+  } else if (command === "workers" && name === "guide") {
+    output(workerGuide());
+  } else if (command === "auth" && (!name || name === "help")) {
+    output({
+      commands: ["auth diagnose", "auth login", "auth status", "auth logout"],
+      next: "Use auth diagnose before attempting login on a remote or cloud computer. CLI and native MCP credentials are independent.",
+      flow: "Browser authorization-code PKCE with a callback on this computer. Device flow and manual callback are not implemented.",
+    });
   } else if (
     command !== "help" &&
     command !== "install" &&
@@ -106,6 +142,7 @@ try {
         "update [--version VERSION]",
         "skill install codex|claude|cursor|both",
         "auth login|status|logout (browser sign-in; no checkout required)",
+        "auth diagnose (offline browser-login readiness; reads no credentials)",
         "setup",
         "install-mcp codex|claude|cursor [--name NAME] (native sign-in or Cursor setup handoff)",
         "install (read owner-issued installation token from stdin)",
@@ -209,8 +246,23 @@ try {
     else throw Error("Use help for supported commands");
   }
 } catch (error) {
-  if (error instanceof WorkerCommandError) {
-    console.error(error.message);
+  if (error instanceof LoginReadinessError) {
+    console.error(
+      JSON.stringify({ error: error.code, ...error.readiness }, null, 2),
+    );
+    process.exitCode = 1;
+  } else if (error instanceof WorkerCommandError) {
+    console.error(
+      JSON.stringify(
+        {
+          error: error.code,
+          message: error.message,
+          ...(error.details ? { details: error.details } : {}),
+        },
+        null,
+        2,
+      ),
+    );
     process.exitCode = 1;
   } else if (
     ["update", "skill", "version", "--version"].includes(process.argv[2])

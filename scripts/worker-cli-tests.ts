@@ -13,6 +13,8 @@ import { createServer } from "node:http";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { AjvJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/ajv-provider.js";
+import { workerContract, workerGuide } from "./worker-guidance.js";
 import {
   parseWorkerRequest,
   validateWorkerIntent,
@@ -26,6 +28,19 @@ const lineId = "33333333-3333-4333-8333-333333333333";
 const intent = { workerId, requestId, lineId, label: "Research worker" };
 const argumentsText = JSON.stringify(intent);
 const actions = ["create", "inspect", "run", "cancel", "checkpoint", "restore"];
+const contract = workerContract();
+const validateSchema = new AjvJsonSchemaValidator().getValidator(
+  contract.inputSchema,
+);
+assert.equal(contract.availability, "source-only");
+assert.equal(contract.operationSent, false);
+assert.deepEqual(contract.inputSchema.properties.action.enum, actions);
+assert.equal(contract.inputSchema.oneOf.length, 6);
+const guide = workerGuide();
+assert.equal(guide.authority, "guidance_only");
+assert.equal(guide.outcomes.response_lost.retry, "never_new_request_id");
+assert.ok(guide.questions.reuseKnownAnswers);
+assert.equal(guide.workflow.at(-1)?.step, "verify");
 const tool = {
   name: "atlas_workers",
   inputSchema: {
@@ -74,6 +89,21 @@ for (const action of actions) {
     action,
     ...value,
   });
+  assert.equal(validateSchema({ action, ...value }).valid, true, action);
+  assert.equal(
+    validateSchema({ action, ...value, authority: "approved" }).valid,
+    false,
+    action,
+  );
+  for (const key of Object.keys(value)) {
+    const incomplete = { ...value };
+    delete incomplete[key];
+    assert.equal(
+      validateSchema({ action, ...incomplete }).valid,
+      false,
+      `${action} missing ${key}`,
+    );
+  }
 }
 for (const bad of [
   "null",
@@ -366,6 +396,14 @@ try {
   const help = await run("workers", "help");
   assert.equal(help.code, 0, help.stderr);
   assert.match(help.stdout, /Optional client interface/);
+  const offlineContract = await run("workers", "contract");
+  assert.equal(offlineContract.code, 0, offlineContract.stderr);
+  assert.deepEqual(JSON.parse(offlineContract.stdout), contract);
+  const offlineGuide = await run("workers", "guide");
+  assert.equal(offlineGuide.code, 0, offlineGuide.stderr);
+  assert.deepEqual(JSON.parse(offlineGuide.stdout), guide);
+  for (const command of ["contract", "guide"])
+    assert.equal((await run("workers", command, "extra")).code, 1);
   // No profile exists: local validation must not try authentication or connect.
   const validated = await run("workers", "validate", "create", "@" + path);
   assert.equal(validated.code, 0, validated.stderr);
@@ -375,6 +413,32 @@ try {
   assert.ok(
     !validated.stdout.includes(intent.label),
     "validation does not echo request contents",
+  );
+  const missing = await run("workers", "validate", "create", "{}");
+  assert.equal(missing.code, 1);
+  assert.equal(
+    JSON.parse(missing.stderr).error,
+    "worker_request_fields_invalid",
+  );
+  assert.deepEqual(JSON.parse(missing.stderr).details.missingFields, [
+    "workerId",
+    "requestId",
+    "lineId",
+    "label",
+  ]);
+  const extraField = await run(
+    "workers",
+    "validate",
+    "create",
+    JSON.stringify({
+      ...intent,
+      "synthetic-private-field-name": "synthetic-private-value",
+    }),
+  );
+  assert.equal(JSON.parse(extraField.stderr).details.unsupportedFieldCount, 1);
+  assert.ok(
+    !extraField.stderr.includes("synthetic-private"),
+    "errors do not echo unknown keys or request contents",
   );
   for (const args of [
     ["workers", "validate"],
@@ -396,6 +460,10 @@ try {
   const unsupported = await run("workers", "create", "@" + path);
   assert.equal(unsupported.code, 1);
   assert.match(unsupported.stderr, /does not advertise/);
+  assert.equal(
+    JSON.parse(unsupported.stderr).error,
+    "worker_capability_unavailable",
+  );
   assert.equal(serverCalls.length, 0);
   advertise = true;
   const created = await run("workers", "create", "@" + path);
@@ -419,6 +487,7 @@ try {
     "ignored-extra",
   );
   assert.equal(invalid.code, 1);
+  assert.equal(JSON.parse(invalid.stderr).error, "worker_request_invalid");
   assert.equal(
     serverCalls.length,
     2,
@@ -426,6 +495,8 @@ try {
   );
   for (const output of [
     help,
+    offlineContract,
+    offlineGuide,
     validated,
     capabilities,
     unsupported,

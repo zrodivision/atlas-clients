@@ -1,4 +1,4 @@
-# Build and deploy a computer worker with Atlas
+# Prepare a computer worker with Atlas
 
 ## Honest demo boundary
 
@@ -15,6 +15,12 @@ Only native installation and consent differ. The daily-driver harness need
 not match the worker's execution harness.
 
 ## 1. Connect the daily driver
+
+For machine-first guidance, start with `atlas --help`, `atlas workers guide`
+and `atlas workers contract`. They require no credentials. The guide supplies
+goal-fit examples, minimal questions, confirmation boundaries, concise result
+templates and recovery decisions. The contract supplies strict request variants
+plus semantic refinements; structural validation is not execution authority.
 
 Use a reviewed release or the reviewed source candidate. A checkout-only
 command is `npm run atlas -- ...`; do not assume a published installation
@@ -41,6 +47,12 @@ credential copying. CLI browser login currently requires a browser and
 loopback callback on that same computer. A hosted MCP connection does not
 automatically solve headless CLI sign-in. Neither installing a skill nor
 authenticating grants computer execution, contacts, vaults or spending.
+
+Run `atlas auth diagnose` before attempting CLI sign-in on a cloud or remote
+computer. Its local prerequisite report reads no profiles, sends no requests
+and creates no access. `canAttemptLocalBrowserLogin` is not a connected-state
+claim. Missing local browser prerequisites should lead to native hosted MCP
+or a suitable desktop terminal, not borrowed credentials.
 
 ## 2. Turn the idea into bounded work
 

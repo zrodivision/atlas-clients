@@ -84,6 +84,7 @@ if (
         "dist/mcp-install.js",
         "dist/distribution.js",
         "dist/worker-cli.js",
+        "dist/worker-guidance.js",
         "skills/atlas/SKILL.md",
       ].includes(f.path),
   )

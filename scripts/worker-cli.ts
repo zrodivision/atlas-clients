@@ -2,28 +2,36 @@
 import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { workerActions } from "./worker-guidance.js";
 
 const toolName = "atlas_workers";
-const actions = [
-  "create",
-  "inspect",
-  "run",
-  "cancel",
-  "checkpoint",
-  "restore",
-] as const;
-type Action = (typeof actions)[number];
+type Action = keyof typeof workerActions;
+const actions = Object.keys(workerActions) as Action[];
 type Request = Record<string, unknown> & { action: Action };
 const uuid =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const maximumBytes = 64 * 1024;
 
 /** Only fixed, credential-free diagnostics may cross the CLI error boundary. */
-export class WorkerCommandError extends Error {}
+export class WorkerCommandError extends Error {
+  constructor(
+    message: string,
+    readonly code = "worker_request_invalid",
+    readonly details?: {
+      missingFields: string[];
+      unsupportedFieldCount: number;
+      allowedFields: string[];
+    },
+  ) {
+    super(message);
+  }
+}
 
 export const workerHelp = {
   commands: [
     "workers capabilities",
+    "workers contract (offline machine-readable request schemas)",
+    "workers guide (offline agent workflow and user-facing guidance)",
     "workers validate ACTION JSON|@request.json (offline; sends nothing)",
     "workers create|inspect|run|cancel|checkpoint|restore JSON|@request.json",
   ],
@@ -54,19 +62,16 @@ export function parseWorkerRequest(action: string, text: string): Request {
   }
   if (!object(value))
     throw new WorkerCommandError("Worker arguments must be a JSON object.");
-  const required = ["workerId"];
-  if (action !== "inspect") required.push("requestId");
-  if (action !== "inspect" && action !== "create")
-    required.push("expectedRevision");
-  if (action === "create") required.push("lineId", "label");
-  if (action === "run") required.push("taskId", "taskVersion", "prompt");
-  if (action === "restore") required.push("checkpointId");
-  if (
-    Object.keys(value).some((key) => !required.includes(key)) ||
-    required.some((key) => !(key in value))
-  )
+  const required: readonly string[] = workerActions[action as Action];
+  const missingFields = required.filter((key) => !(key in value));
+  const unsupportedFieldCount = Object.keys(value).filter(
+    (key) => !required.includes(key),
+  ).length;
+  if (unsupportedFieldCount || missingFields.length)
     throw new WorkerCommandError(
       "Worker arguments have missing or unsupported fields. See the worker CLI documentation.",
+      "worker_request_fields_invalid",
+      { missingFields, unsupportedFieldCount, allowedFields: [...required] },
     );
   for (const key of ["workerId", "requestId", "lineId", "taskId"])
     if (
@@ -217,6 +222,7 @@ export async function workerCommand(
         if (tool)
           throw new WorkerCommandError(
             "Worker tool discovery is ambiguous; no worker operation was sent.",
+            "worker_discovery_ambiguous",
           );
         tool = candidate;
       }
@@ -224,6 +230,7 @@ export async function workerCommand(
     if (page === 19 || seen.has(result.nextCursor))
       throw new WorkerCommandError(
         "Worker tool discovery is incomplete; no worker operation was sent.",
+        "worker_discovery_incomplete",
       );
     seen.add(result.nextCursor);
     cursor = result.nextCursor;
@@ -242,6 +249,7 @@ export async function workerCommand(
   if (!tool || !supportedActions.includes(action))
     throw new WorkerCommandError(
       "This server does not advertise the requested atlas_workers action. No worker operation was sent.",
+      "worker_capability_unavailable",
     );
   // Exactly one call. Transport failures and uncertain results are never retried here.
   const result = await client.callTool({ name: toolName, arguments: request });
