@@ -60,6 +60,9 @@ try {
   const help = run("help");
   assert.equal(help.status, 0, help.stderr);
   assert.match(help.stdout, /auth/);
+  const workers = run("workers", "help");
+  assert.equal(workers.status, 0, workers.stderr);
+  assert.match(workers.stdout, /Optional client interface/);
   const status = run("auth", "status");
   assert.equal(status.status, 0, status.stderr);
   assert.equal(JSON.parse(status.stdout).configured, false);

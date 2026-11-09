@@ -52,8 +52,8 @@ await writeFile(
   await readFile(join(root, "docs/cli.md")),
 );
 const build = spawnSync(
-  join(root, "node_modules/.bin/tsx"),
-  [join(root, "scripts/package-cli.ts")],
+  process.execPath,
+  ["--import", "tsx", join(root, "scripts/package-cli.ts")],
   { encoding: "utf8" },
 );
 if (build.status !== 0) throw Error("CLI build failed");
@@ -75,6 +75,7 @@ if (
         "dist/cli-oauth.js",
         "dist/mcp-install.js",
         "dist/distribution.js",
+        "dist/worker-cli.js",
         "skills/atlas/SKILL.md",
       ].includes(f.path),
   )

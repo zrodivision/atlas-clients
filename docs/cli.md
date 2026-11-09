@@ -18,6 +18,73 @@
 | `atlas update` | Update a standalone installation. |
 | `atlas update --version VERSION` | Install a particular published version, including rollback. |
 | `atlas --version` | Print the installed version. |
+| `atlas workers help` | Explain the optional, discovery-gated worker client interface. |
+| `atlas workers capabilities` | Inspect whether this server advertises the worker tool. Does not start work. |
+
+## Computer-backed worker interface (source candidate)
+
+This client branch adds an optional adapter for a future `atlas_workers` MCP
+tool. Atlas 0.14.1 does not implement or advertise that tool. The adapter does
+not install a computer, run an agent, grant authority or make the separate
+runtime prototype available through the hosted service. Current servers return
+`available: false`; mutation commands stop before sending a worker operation.
+No catalog entry or maintained skill advertises this candidate as a deployed
+capability. Server integration, reviewed contracts, versioning, the immutable
+client pin and actual host/runtime acceptance remain separate work.
+
+After ordinary browser login, use `atlas workers capabilities` to inspect the
+current server's tool discovery. `available: true` means only that the tool was
+advertised, not that a computer or model is ready or permission was granted.
+The client requires the requested action to appear in that tool's schema and
+uses the same authenticated MCP connection as `atlas call`. OAuth and
+owner-issued installation profiles keep their existing authority boundaries.
+
+The candidate command is:
+
+```sh
+atlas workers create @create-request.json
+atlas workers inspect '{"workerId":"11111111-1111-4111-8111-111111111111"}'
+```
+
+Supply either a JSON object or an exact `@request.json` regular file of at most
+64 KiB. Using a file keeps long task prompts out of shell arguments and helps
+retain exact intent for recovery. The CLI reads but never rewrites it. Do not
+include credentials, secret values, owner sessions or permission approvals in
+worker arguments. The file is not a secret store.
+
+The adapter currently understands these candidate fields; deployed backend
+authority and validation remain decisive:
+
+| Action | Fields |
+| --- | --- |
+| `create` | `workerId`, `requestId`, `lineId`, `label` |
+| `inspect` | `workerId` |
+| `run` | `workerId`, `requestId`, `expectedRevision`, `taskId`, `taskVersion`, `prompt` |
+| `cancel` | `workerId`, `requestId`, `expectedRevision` |
+| `checkpoint` | `workerId`, `requestId`, `expectedRevision` |
+| `restore` | `workerId`, `requestId`, `expectedRevision`, `checkpointId` |
+
+IDs except `checkpointId` are UUIDs. Revisions and task versions are positive
+integers. Do not include an `action` property; the command supplies it. Unknown
+fields and missing saved mutation request IDs are rejected before connecting.
+The tool cannot be used to impersonate an owner, select a credential, authorize
+a provider or inherit the daily driver's private tools, history or data grants.
+
+Save the entire request before mutating. The CLI makes one tool call and never
+automatically retries, changes a request ID, resumes a worker or polls in the
+background. After a lost reply, inspect the saved worker ID and reconcile the
+operation through the backend's documented recovery protocol. Do not create a
+new request to repeat an uncertain external effect. A revision conflict needs
+fresh inspection and an intentional decision, not automatic rebasing.
+
+Runtime results are returned unchanged. Admission, provisioning, an active
+process, model completion, task outcome and artifact verification are distinct.
+Cancellation is a request until the runtime confirms stopping; checkpoints do
+not promise browser, network or in-flight operation restoration. `UNCERTAIN`
+must remain uncertain. Tool-level errors exit nonzero. Local fixture tests
+prove only adapter behavior, not production worker execution or native host
+acceptance. Listing workers, logs and artifacts needs a separately reviewed
+server contract and is not supplied by these aliases.
 
 ## Profiles and accounts
 
