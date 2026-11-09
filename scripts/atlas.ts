@@ -9,6 +9,7 @@ import {
   workerCommand,
   readWorkerArgument,
   parseWorkerRequest,
+  validateWorkerIntent,
 } from "./worker-cli.js";
 import { constants } from "node:fs";
 import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
@@ -59,15 +60,25 @@ try {
   const [command = "help", name, rawArgs = "{}", ...extra] =
     process.argv.slice(2);
   let args = rawArgs;
+  let validation: ReturnType<typeof validateWorkerIntent> | undefined;
   if (command === "workers") {
-    if (
+    if (name === "validate") {
+      if (extra.length !== 1)
+        throw new WorkerCommandError(
+          "Use atlas workers validate ACTION JSON|@request.json.",
+        );
+      validation = validateWorkerIntent(
+        rawArgs,
+        await readWorkerArgument(extra[0]),
+      );
+    } else if (
       extra.length ||
       ((name === "help" || name === "capabilities") && process.argv.length > 4)
     )
       throw new WorkerCommandError(
         "Use atlas workers help for supported commands.",
       );
-    if (name && name !== "help" && name !== "capabilities") {
+    if (name && !["help", "capabilities", "validate"].includes(name)) {
       args = await readWorkerArgument(rawArgs);
       parseWorkerRequest(name, args);
     }
@@ -76,6 +87,8 @@ try {
     // Distribution commands do not require an Atlas login.
   } else if (command === "workers" && (!name || name === "help")) {
     output(workerHelp);
+  } else if (validation) {
+    output(validation);
   } else if (
     command !== "help" &&
     command !== "install" &&
@@ -91,10 +104,10 @@ try {
       commands: [
         "--version",
         "update [--version VERSION]",
-        "skill install codex|claude|both",
+        "skill install codex|claude|cursor|both",
         "auth login|status|logout (browser sign-in; no checkout required)",
         "setup",
-        "install-mcp codex|claude [--name NAME] (browser sign-in)",
+        "install-mcp codex|claude|cursor [--name NAME] (native sign-in or Cursor setup handoff)",
         "install (read owner-issued installation token from stdin)",
         "whoami",
         "list",

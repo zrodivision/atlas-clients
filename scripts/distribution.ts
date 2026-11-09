@@ -28,9 +28,9 @@ export async function distribution(command: string, args: string[]) {
     if (
       args[0] !== "install" ||
       args.length !== 2 ||
-      !["codex", "claude", "both"].includes(args[1])
+      !["codex", "claude", "cursor", "both"].includes(args[1])
     )
-      throw Error("Use atlas skill install codex|claude|both");
+      throw Error("Use atlas skill install codex|claude|cursor|both");
     const targets = args[1] === "both" ? ["codex", "claude"] : [args[1]];
     const contents = (
       await readFile(join(root, "skills/atlas/SKILL.md"), "utf8")
@@ -38,7 +38,11 @@ export async function distribution(command: string, args: string[]) {
     for (const target of targets) {
       const directory = join(
         homedir(),
-        target === "codex" ? ".agents/skills/atlas" : ".claude/skills/atlas",
+        target === "codex"
+          ? ".agents/skills/atlas"
+          : target === "cursor"
+            ? ".cursor/skills/atlas"
+            : ".claude/skills/atlas",
       );
       let ancestor = directory;
       while (

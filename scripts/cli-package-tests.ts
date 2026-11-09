@@ -63,6 +63,27 @@ try {
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
   assert.match(workers.stdout, /Optional client interface/);
+  const validated = run(
+    "workers",
+    "validate",
+    "inspect",
+    JSON.stringify({
+      workerId: "11111111-1111-4111-8111-111111111111",
+    }),
+  );
+  assert.equal(validated.status, 0, validated.stderr);
+  assert.equal(JSON.parse(validated.stdout).operationSent, false);
+  assert.equal(JSON.parse(validated.stdout).serverChecked, false);
+  const cursor = run("install-mcp", "cursor");
+  assert.equal(cursor.status, 0, cursor.stderr);
+  assert.equal(
+    JSON.parse(cursor.stdout).status,
+    "manual_configuration_required",
+  );
+  assert.equal(
+    JSON.parse(cursor.stdout).config.mcpServers.atlas.url,
+    "https://connectatlas.io/mcp",
+  );
   const status = run("auth", "status");
   assert.equal(status.status, 0, status.stderr);
   assert.equal(JSON.parse(status.stdout).configured, false);

@@ -13,13 +13,16 @@
 | `atlas call TOOL '{}'` | Call an Atlas tool with JSON arguments. |
 | `atlas skill install codex` | Install or refresh the bundled Codex skill. |
 | `atlas skill install claude` | Install or refresh the bundled Claude Code skill. |
+| `atlas skill install cursor` | Install or refresh the bundled Cursor skill. |
 | `atlas install-mcp codex` | Configure Codex’s independent MCP connection. |
 | `atlas install-mcp claude` | Configure Claude Code’s independent MCP connection. |
+| `atlas install-mcp cursor` | Print a credential-free Cursor configuration handoff; does not configure or authenticate Cursor. |
 | `atlas update` | Update a standalone installation. |
 | `atlas update --version VERSION` | Install a particular published version, including rollback. |
 | `atlas --version` | Print the installed version. |
 | `atlas workers help` | Explain the optional, discovery-gated worker client interface. |
 | `atlas workers capabilities` | Inspect whether this server advertises the worker tool. Does not start work. |
+| `atlas workers validate ACTION JSON\|@request.json` | Validate saved candidate intent offline, without a profile or network request. |
 
 ## Computer-backed worker interface (source candidate)
 
@@ -38,6 +41,15 @@ advertised, not that a computer or model is ready or permission was granted.
 The client requires the requested action to appear in that tool's schema and
 uses the same authenticated MCP connection as `atlas call`. OAuth and
 owner-issued installation profiles keep their existing authority boundaries.
+
+For a host-independent rehearsal, first use `atlas workers validate create
+@create-request.json`. Validation works before login and returns no request
+contents. `valid: true` means the local candidate accepts the request structure,
+not that a server, owner, computer or model accepted it. It reports
+`serverChecked: false` and `operationSent: false`. Use the same saved file for
+dispatch only after current discovery and owner authority permit it. See
+[the cross-harness walkthrough](computers-walkthrough.md) for the setup sequence
+and evidence required before calling a worker deployed.
 
 The candidate command is:
 
@@ -64,8 +76,12 @@ authority and validation remain decisive:
 | `checkpoint` | `workerId`, `requestId`, `expectedRevision` |
 | `restore` | `workerId`, `requestId`, `expectedRevision`, `checkpointId` |
 
-IDs except `checkpointId` are UUIDs. Revisions and task versions are positive
-integers. Do not include an `action` property; the command supplies it. Unknown
+IDs except `checkpointId` are RFC UUIDs with version 1–8 and variant 8, 9, a or b,
+without whitespace. Revisions and task versions are positive safe integers.
+Labels are nonblank and at most 80 UTF-16 code units; prompts are nonblank and
+at most 32 KiB of UTF-8. Neither may contain NUL. Checkpoint IDs are `v` followed
+by 1–20 digits and must come from the selected worker's checkpoint response.
+Do not include an `action` property; the command supplies it. Unknown
 fields and missing saved mutation request IDs are rejected before connecting.
 The tool cannot be used to impersonate an owner, select a credential, authorize
 a provider or inherit the daily driver's private tools, history or data grants.
@@ -113,7 +129,16 @@ To follow a stable release, run `atlas update --version` with that stable versio
 
 ## Skills and plugins
 
-`atlas skill install codex|claude|both` installs the skill included with that CLI version. Codex uses `~/.agents/skills/atlas`; Claude Code uses `~/.claude/skills/atlas`. These are standard per-user skill locations. The command preserves unrelated files, refuses symlink targets and backs up changed `SKILL.md` files before replacing them. Updating the CLI does not silently update a separately installed skill.
+`atlas skill install codex|claude|cursor|both` installs the skill included with that CLI version. Codex uses `~/.agents/skills/atlas`; Claude Code uses `~/.claude/skills/atlas`; Cursor uses `~/.cursor/skills/atlas`. `both` retains its existing meaning: Codex and Claude Code only. These are standard per-user skill locations. The command preserves unrelated files, refuses symlink targets and backs up changed `SKILL.md` files before replacing them. Updating the CLI does not silently update a separately installed skill.
+
+`atlas install-mcp cursor` prints the `mcpServers` entry to merge into
+`~/.cursor/mcp.json`, plus verification instructions. It does not write that
+file, replace existing entries, copy CLI credentials or start login. Complete
+native authentication in Cursor's MCP settings, or with the documented
+`agent mcp login atlas` command when that CLI is installed. Restart or open a
+fresh chat, load `/atlas`, discover tools and read `atlas://me` to verify the
+selected account and line. Native Cursor OAuth and UI acceptance must be
+tested separately; printed JSON is not evidence of a connected client.
 
 The hosted plugin includes its own skill and is updated through the harness. Installing the standalone skill as well is optional and usually unnecessary. Neither skill installation nor a plugin update grants account access.
 

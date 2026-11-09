@@ -1,14 +1,8 @@
-> **Unreleased 0.12.2 guidance update:** The Console initializes its internal messaging address when opening Conversations. Existing allowances and permissions apply; no agent deployment is required. This branch is draft source, not a published package or deployed service.
-
-> **0.12.0 source release:** Account-only human conversations and bounded hands-free client voice use the same Atlas conversation/task authority. See the canonical skill for call consent, attribution and recovery boundaries. Physical microphone/WebRTC and managed Agents API inference acceptance remain separate from controlled tests.
-
-> Service deployment, GitHub client artifacts and installed hosts are separate states. This draft source targets Atlas service 0.12.2; publishing this repository does not deploy that service. Native sign-in and rendering acceptance must be checked on each supported host.
-
 # Atlas
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-Draft source and compatibility metadata are `0.13.15`. Publishing a release, deploying the service and native host acceptance are separate steps. The installer follows published stable releases; use `--version v0.13.15` to request this version after its assets are published.
+The published client baseline is **0.14.1**. This branch adds an unreleased worker CLI candidate and Cursor setup support. Installing a client, deploying the service and verifying native host behavior are separate steps. See the [computer worker walkthrough](docs/computers-walkthrough.md) for current gates and an honest demo sequence.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 
@@ -53,6 +47,7 @@ The skill teaches your assistant how to use Atlas tools and respect account perm
 ```sh
 atlas skill install codex
 atlas skill install claude
+# Source candidate: atlas skill install cursor
 # Or: atlas skill install both
 ```
 
@@ -63,16 +58,17 @@ Start a fresh chat after installation. Changed skill files are backed up before 
 Browser-only assistants do not need the CLI. In the assistant’s connector or remote MCP settings, add:
 
 ```text
-https://atlas-production-9abf.up.railway.app/mcp
+https://connectatlas.io/mcp
 ```
 
-Complete browser authorization, then ask the assistant to read `atlas://me` and confirm your account and line. This requires the server rollout noted above.
+Complete browser authorization, then ask the assistant to read `atlas://me` and confirm your account and line. Verify the actual identity and tools; configuration alone does not prove authentication.
 
 For terminal harnesses, the CLI can configure the connection using the harness’s own commands:
 
 ```sh
 atlas install-mcp codex
 atlas install-mcp claude
+# Source candidate: atlas install-mcp cursor (prints a setup handoff)
 ```
 
 If an existing `atlas` entry points elsewhere, preserve it and use `--name another-name`. The harness owns its OAuth credentials; the CLI does not copy them.
@@ -102,6 +98,7 @@ Plugin updates are managed by your harness. CLI updates do not alter installed p
 ## More
 
 - [CLI commands, profiles and troubleshooting](docs/cli.md)
+- [Cross-harness computer worker walkthrough](docs/computers-walkthrough.md)
 - [Releases and downloads](https://github.com/zrodivision/atlas-clients/releases)
 - [Atlas skill](skills/atlas/SKILL.md)
 

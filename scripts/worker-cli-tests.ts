@@ -15,6 +15,7 @@ import { join, resolve } from "node:path";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import {
   parseWorkerRequest,
+  validateWorkerIntent,
   readWorkerArgument,
   workerCommand,
 } from "./worker-cli.js";
@@ -68,7 +69,7 @@ for (const action of actions) {
       taskVersion: 1,
       prompt: "Inspect the selected files.",
     });
-  if (action === "restore") value.checkpointId = "checkpoint-1";
+  if (action === "restore") value.checkpointId = "v1";
   assert.deepEqual(parseWorkerRequest(action, JSON.stringify(value)), {
     action,
     ...value,
@@ -107,6 +108,93 @@ assert.throws(() =>
   parseWorkerRequest("inspect", JSON.stringify({ workerId, requestId })),
 );
 assert.throws(() => parseWorkerRequest("remove", "{}"));
+
+// The same public request refinements apply before both CLI and MCP dispatch.
+for (const badId of [
+  workerId + "\n",
+  workerId + "\r",
+  workerId + "\u2028",
+  " " + workerId,
+  "11111111-1111-0111-8111-111111111111",
+  "11111111-1111-9111-8111-111111111111",
+  "11111111-1111-4111-7111-111111111111",
+])
+  for (const key of ["workerId", "requestId", "lineId"])
+    assert.throws(() =>
+      parseWorkerRequest("create", JSON.stringify({ ...intent, [key]: badId })),
+    );
+for (const label of ["x".repeat(81), "💻".repeat(41), "bad\0label", "\uFEFF"])
+  assert.throws(() =>
+    parseWorkerRequest("create", JSON.stringify({ ...intent, label })),
+  );
+for (const label of ["x".repeat(80), "💻".repeat(40), "\u0085"])
+  assert.equal(
+    parseWorkerRequest("create", JSON.stringify({ ...intent, label })).label,
+    label,
+  );
+const runIntent = {
+  workerId,
+  requestId,
+  expectedRevision: 1,
+  taskId: lineId,
+  taskVersion: 1,
+  prompt: "Inspect files.",
+};
+for (const prompt of [
+  "x".repeat(32769),
+  "💻".repeat(8193),
+  "bad\0prompt",
+  "\uFEFF",
+])
+  assert.throws(() =>
+    parseWorkerRequest("run", JSON.stringify({ ...runIntent, prompt })),
+  );
+for (const prompt of ["x".repeat(32768), "💻".repeat(8192)])
+  assert.equal(
+    parseWorkerRequest("run", JSON.stringify({ ...runIntent, prompt })).prompt,
+    prompt,
+  );
+for (const checkpointId of [
+  "checkpoint-1",
+  "v",
+  "../v1",
+  "v1\n",
+  "v1\r",
+  "v1\u2028",
+  "v" + "1".repeat(21),
+])
+  assert.throws(() =>
+    parseWorkerRequest(
+      "restore",
+      JSON.stringify({
+        workerId,
+        requestId,
+        expectedRevision: 1,
+        checkpointId,
+      }),
+    ),
+  );
+assert.equal(
+  parseWorkerRequest(
+    "restore",
+    JSON.stringify({
+      workerId,
+      requestId,
+      expectedRevision: 1,
+      checkpointId: "v" + "1".repeat(20),
+    }),
+  ).checkpointId,
+  "v" + "1".repeat(20),
+);
+assert.deepEqual(validateWorkerIntent("create", argumentsText), {
+  valid: true,
+  action: "create",
+  contract: "urn:atlas:cloud-workers:candidate:1",
+  serverChecked: false,
+  operationSent: false,
+  message:
+    "Local candidate request validation only. Server discovery, current authority and runtime readiness still require verification.",
+});
 
 assert.deepEqual(
   await workerCommand(fixture([{ tools: [] }]), "capabilities"),
@@ -278,6 +366,25 @@ try {
   const help = await run("workers", "help");
   assert.equal(help.code, 0, help.stderr);
   assert.match(help.stdout, /Optional client interface/);
+  // No profile exists: local validation must not try authentication or connect.
+  const validated = await run("workers", "validate", "create", "@" + path);
+  assert.equal(validated.code, 0, validated.stderr);
+  assert.equal(JSON.parse(validated.stdout).valid, true);
+  assert.equal(JSON.parse(validated.stdout).serverChecked, false);
+  assert.equal(JSON.parse(validated.stdout).operationSent, false);
+  assert.ok(
+    !validated.stdout.includes(intent.label),
+    "validation does not echo request contents",
+  );
+  for (const args of [
+    ["workers", "validate"],
+    ["workers", "validate", "create"],
+    ["workers", "validate", "create", "@" + path, "extra"],
+    ["workers", "validate", "run", argumentsText],
+  ]) {
+    const rejected = await run(...args);
+    assert.equal(rejected.code, 1, JSON.stringify(args));
+  }
   await writeFile(
     join(home, "fixture.json"),
     JSON.stringify({ url: `http://127.0.0.1:${address.port}`, token: secret }),
@@ -319,6 +426,7 @@ try {
   );
   for (const output of [
     help,
+    validated,
     capabilities,
     unsupported,
     created,

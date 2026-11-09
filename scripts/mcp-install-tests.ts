@@ -3,7 +3,7 @@ import { mkdtemp, writeFile, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
-import { claudeUrl } from "./mcp-install.js";
+import { claudeUrl, installMcp } from "./mcp-install.js";
 const origin = "https://atlas.example";
 const temp = await mkdtemp(join(tmpdir(), "atlas-installer-"));
 try {
@@ -87,4 +87,43 @@ assert.equal(
 assert.throws(() => claudeUrl("not a URL"));
 console.log(
   "PASS native installer stable URL, login, idempotent registration and conflicting-entry preservation",
+);
+
+// Cursor is a read-only config handoff: it must not spawn a host or alter files.
+const savedLog = console.log;
+const savedUrl = process.env.ATLAS_URL;
+const output: string[] = [];
+try {
+  process.env.ATLAS_URL = origin;
+  console.log = (value: string) => {
+    output.push(value);
+  };
+  await installMcp("cursor", ["--name", "atlas-cursor"]);
+  const handoff = JSON.parse(output[0]);
+  assert.equal(handoff.status, "manual_configuration_required");
+  assert.equal(handoff.configPath, "~/.cursor/mcp.json");
+  assert.deepEqual(handoff.config, {
+    mcpServers: { "atlas-cursor": { url: origin + "/mcp" } },
+  });
+  assert.match(handoff.instructions.join(" "), /has not changed configuration/);
+  assert.match(handoff.instructions.join(" "), /atlas:\/\/me/);
+  await assert.rejects(installMcp("cursor", ["--name", "bad name"]));
+  await assert.rejects(installMcp("cursor", ["--force"]));
+  for (const invalid of [
+    "http://atlas.example",
+    "https://user:secret@atlas.example",
+    "https://atlas.example/path",
+    "https://atlas.example?token=secret",
+  ]) {
+    process.env.ATLAS_URL = invalid;
+    await assert.rejects(installMcp("cursor", []));
+  }
+  assert.equal(output.length, 1);
+} finally {
+  console.log = savedLog;
+  if (savedUrl === undefined) delete process.env.ATLAS_URL;
+  else process.env.ATLAS_URL = savedUrl;
+}
+console.log(
+  "PASS Cursor credential-free configuration handoff and input validation",
 );

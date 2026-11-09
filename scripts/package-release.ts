@@ -51,6 +51,13 @@ await writeFile(
   join(marketplace, "CLI.md"),
   await readFile(join(root, "docs/cli.md")),
 );
+await writeFile(
+  join(marketplace, "computers-walkthrough.md"),
+  (await readFile(join(root, "docs/computers-walkthrough.md"), "utf8")).replace(
+    "(cli.md#computer-backed-worker-interface-source-candidate)",
+    "(CLI.md#computer-backed-worker-interface-source-candidate)",
+  ),
+);
 const build = spawnSync(
   process.execPath,
   ["--import", "tsx", join(root, "scripts/package-cli.ts")],
@@ -70,6 +77,7 @@ if (
     (f: { path: string }) =>
       ![
         "README.md",
+        "computers-walkthrough.md",
         "package.json",
         "dist/atlas.js",
         "dist/cli-oauth.js",

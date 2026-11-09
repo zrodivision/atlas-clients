@@ -93,8 +93,8 @@ async function verify(name: string) {
 }
 /** Configure the stable remote service; native host OAuth owns all credentials. */
 export async function installMcp(target: string, args: string[]) {
-  if (!["codex", "claude"].includes(target))
-    throw Error("Choose codex or claude");
+  if (!["codex", "claude", "cursor"].includes(target))
+    throw Error("Choose codex, claude or cursor");
   if (args.length && (args.length !== 2 || args[0] !== "--name"))
     throw Error("Use --name NAME");
   const name = args[1] ?? "atlas";
@@ -110,6 +110,31 @@ export async function installMcp(target: string, args: string[]) {
   )
     throw Error("HTTPS origin required");
   const url = base.origin + "/mcp";
+  if (target === "cursor") {
+    // A config handoff, not an authenticated install. Never inspect or rewrite
+    // Cursor's existing configuration or borrow credentials from another host.
+    console.log(
+      JSON.stringify(
+        {
+          status: "manual_configuration_required",
+          target: "cursor",
+          configPath: "~/.cursor/mcp.json",
+          config: { mcpServers: { [name]: { url } } },
+          instructions: [
+            "Merge this entry into mcpServers in the config file; preserve unrelated entries. If the name already exists with another URL, choose another --name.",
+            "Open Cursor's MCP settings and complete its OAuth connection flow. Review the Atlas account and line before granting access.",
+            `If using the Cursor CLI, its documented login command is: agent mcp login ${name}`,
+            "Start a fresh Cursor chat, confirm Atlas tools are available, and read atlas://me to verify the selected line.",
+            "This command has not changed configuration, authenticated, or verified a live Cursor connection. Do not paste Atlas CLI tokens into Cursor.",
+          ],
+          documentation: "https://cursor.com/docs/mcp",
+        },
+        null,
+        2,
+      ),
+    );
+    return;
+  }
   const existing = spawnSync(
     target,
     ["mcp", "get", name, ...(target === "codex" ? ["--json"] : [])],

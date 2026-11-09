@@ -14,7 +14,8 @@ const actions = [
 ] as const;
 type Action = (typeof actions)[number];
 type Request = Record<string, unknown> & { action: Action };
-const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const uuid =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const maximumBytes = 64 * 1024;
 
 /** Only fixed, credential-free diagnostics may cross the CLI error boundary. */
@@ -23,6 +24,7 @@ export class WorkerCommandError extends Error {}
 export const workerHelp = {
   commands: [
     "workers capabilities",
+    "workers validate ACTION JSON|@request.json (offline; sends nothing)",
     "workers create|inspect|run|cancel|checkpoint|restore JSON|@request.json",
   ],
   status:
@@ -69,10 +71,12 @@ export function parseWorkerRequest(action: string, text: string): Request {
   for (const key of ["workerId", "requestId", "lineId", "taskId"])
     if (
       key in value &&
-      (typeof value[key] !== "string" || !uuid.test(value[key]))
+      (typeof value[key] !== "string" ||
+        value[key].length !== 36 ||
+        !uuid.test(value[key]))
     )
       throw new WorkerCommandError(
-        "Worker, request, line and task identifiers must be UUIDs.",
+        "Worker, request, line and task identifiers must be RFC UUIDs (versions 1–8, without whitespace).",
       );
   for (const key of ["expectedRevision", "taskVersion"])
     if (
@@ -82,12 +86,49 @@ export function parseWorkerRequest(action: string, text: string): Request {
       throw new WorkerCommandError(
         "Worker revisions and task versions must be positive safe integers.",
       );
-  for (const key of ["label", "prompt", "checkpointId"])
-    if (key in value && (typeof value[key] !== "string" || !value[key].trim()))
+  for (const key of ["label", "prompt"])
+    if (
+      key in value &&
+      (typeof value[key] !== "string" ||
+        !value[key].trim() ||
+        value[key].includes("\0"))
+    )
       throw new WorkerCommandError(
-        "Worker label, prompt and checkpoint identifiers must be nonempty strings.",
+        "Worker labels and prompts must be nonblank strings without NUL characters.",
       );
+  if (typeof value.label === "string" && value.label.length > 80)
+    throw new WorkerCommandError(
+      "Worker labels must fit 80 UTF-16 code units.",
+    );
+  if (
+    typeof value.prompt === "string" &&
+    Buffer.byteLength(value.prompt, "utf8") > 32768
+  )
+    throw new WorkerCommandError("Worker prompts must fit 32 KiB of UTF-8.");
+  if (
+    "checkpointId" in value &&
+    (typeof value.checkpointId !== "string" ||
+      value.checkpointId !== value.checkpointId.trim() ||
+      !/^v[0-9]{1,20}$/.test(value.checkpointId))
+  )
+    throw new WorkerCommandError(
+      "Checkpoint identifiers must be v followed by 1–20 digits, as returned by this worker.",
+    );
   return { action: action as Action, ...value };
+}
+
+/** Validate saved intent without a profile, discovery, or execution side effect. */
+export function validateWorkerIntent(action: string, text: string) {
+  const request = parseWorkerRequest(action, text);
+  return {
+    valid: true,
+    action: request.action,
+    contract: "urn:atlas:cloud-workers:candidate:1",
+    serverChecked: false,
+    operationSent: false,
+    message:
+      "Local candidate request validation only. Server discovery, current authority and runtime readiness still require verification.",
+  };
 }
 
 export async function readWorkerArgument(argument: string): Promise<string> {
