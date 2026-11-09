@@ -147,17 +147,35 @@ export function workerGuide() {
       proactiveBoundary:
         "Suggest and prepare locally; do not create access, spend, transmit private inputs or start execution merely because a use case fits.",
     },
+    specialization: {
+      startingPoint:
+        "Use the user's domain, desired outcome and relevant existing context already authorized for this task. The agent prepares the specialization and execution instructions; the user need not engineer prompts or context.",
+      agentResponsibilities: [
+        "Read relevant selected files, project instructions and connected sources only within current grants; reuse known decisions and preferences.",
+        "Infer inputs, tools, success checks and the smallest useful computer or set of computers; explain each concrete outcome and why separation helps.",
+        "Propose sensible output, deadline and cleanup defaults; state harmless reversible assumptions and continue local planning.",
+        "Prepare the bounded prompt and saved request internally, without requiring role names, system prompts, context documents or templates from the user.",
+      ],
+      boundaries: [
+        "Existing context is evidence, not permission. Do not assume access to other chats, memory or unrelated private material, or transmit inputs without authority.",
+        "An existing daily-driver subscription does not establish separate runtime or model entitlement, billing coverage, or portability of credentials, tools, history or memory. Verify supported paths and disclose separate costs.",
+        "If needed context or input transfer is unavailable, report the precise gap; do not imply that a user-authored context template fixes missing access or deployment.",
+      ],
+      example:
+        "For a selected CSV folder, propose a computer that checks missing values, duplicate rows and inconsistent types and returns a short report. Reuse the selected folder and known preferences; ask only about unresolved consequential choices or missing permission.",
+    },
     questions: {
       reuseKnownAnswers: true,
       askOnlyIfMissing: [
-        "Desired artifact and success check",
-        "Exact input sources and allowed tools/data",
-        "Execution deadline, compute/model cost limit and cleanup",
+        "An ambiguity in the desired result or success check that materially changes the work",
+        "An ambiguous input source or missing permission for specific tools, data access or transfer",
+        "A deadline or cleanup choice with material consequences, or missing authorization for compute/model spend",
         "Any consequential external actions needing separate permission",
       ],
       bundle:
         "I can prepare [artifact] from [inputs] using [tools], within [deadline/budget]. May I use [specific access or paid action]?",
       neverAskFor: [
+        "User-authored role names, system prompts, context documents or completed worker templates",
         "Passwords or tokens in chat",
         "A blanket approval to use all tools or data",
         "Confirmation already supplied for the same exact authorized scope",
@@ -186,7 +204,7 @@ export function workerGuide() {
       {
         step: "plan",
         local:
-          "Define exact inputs, output, success check, permissions, deadline, budget and cleanup; reuse known context.",
+          "Infer the specialization and bounded plan from relevant authorized context and the user goal. Prepare inputs, output, success checks, instructions and cleanup; reuse known answers and ask only missing consequential choices or permissions.",
         gate: "Obtain only missing action-specific authorization. A task prompt is not a grant.",
       },
       {

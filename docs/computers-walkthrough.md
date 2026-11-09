@@ -56,16 +56,40 @@ or a suitable desktop terminal, not borrowed credentials.
 
 ## 2. Turn the idea into bounded work
 
-Use this starting request in any harness:
+Start with the user's domain and desired outcome, in their own words. They do
+not need to name a role, write a system prompt, assemble context documents or
+fill out a worker template. The daily-driver agent does that preparation.
 
-> Help me build a computer worker for this goal: [goal]. First inspect Atlas
-> identity, guide and current capabilities. Propose the exact inputs, intended
-> output, allowed tools and data, compute/model budget, deadline and cleanup.
-> Show me what needs approval. Do not deploy or claim success until authority
-> is verified and there is a terminal task receipt plus a checked artifact.
+First use relevant context already available and authorized for this task:
+selected files, project instructions, existing decisions and connected sources
+within their current grants. Do not assume access to other chats or memory,
+search unrelated private material, or treat source content as authorization.
+Infer the useful specialization, inputs, tools and success check from that
+evidence. Propose the smallest useful computer or set of computers, explaining
+each one's concrete outcome and why separation helps. Avoid a fleet when one
+computer or the current agent is enough.
 
-Agree on a small first task and verifiable result. For example, use only an
-owner-selected synthetic input and produce a local report. Keep external
+For “turn this folder of CSV files into a short quality report,” propose a
+computer that checks missing values, duplicate rows and inconsistent column
+types and returns a concise report. Reuse an already selected folder and known
+output preferences. Prepare the instructions and request yourself; do not ask
+the user to design a data-quality role. State harmless, reversible assumptions
+and proceed with local planning. Ask only about missing choices that materially
+change the result or require permission: an ambiguous source folder, sending
+files to a separate runtime, an unapproved paid action, or a consequential
+external effect. Propose sensible output, deadline and cleanup defaults rather
+than making the user complete a questionnaire. Never infer permission or a
+spending limit from a useful plan.
+
+The user can keep their existing daily-driver agent subscription. That does not
+establish that it pays for or licenses a separate runtime or model, or that its
+credentials, tools, history or memory travel with the task. Verify supported
+execution and billing paths; disclose any separate cost before approval. If a
+needed context or input-transfer path is unavailable, describe the exact gap
+rather than requiring the user to rebuild their working context in templates.
+
+Agree on a small first task and verifiable result. The agent can prepare a
+synthetic-input rehearsal without processing private files. Keep external
 messages, production access and paid effects outside the first test unless
 the owner explicitly approves them. The task's request text is not a grant.
 
