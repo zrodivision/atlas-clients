@@ -70,6 +70,12 @@ try {
     assert.equal(authHelp.status, 0, authHelp.stderr);
     assert.ok(JSON.parse(authHelp.stdout).commands.includes("auth diagnose"));
   }
+  const setup = run("setup");
+  assert.equal(setup.status, 0, setup.stderr);
+  assert.equal(
+    JSON.parse(setup.stdout).console,
+    `${new URL(process.env.ATLAS_URL ?? "https://connectatlas.io").origin}/app`,
+  );
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
   assert.match(workers.stdout, /Optional client interface/);

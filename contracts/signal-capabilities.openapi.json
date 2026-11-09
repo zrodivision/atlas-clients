@@ -2,8 +2,8 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas scoped Signal capability broker",
-    "version": "0.14.1",
-    "description": "Deny-by-default explicit grants. Connected agents and representative turns are distinct server-bound principals. No model-origin approval, implicit communication or source synchronization."
+    "version": "0.14.2",
+    "description": "Native-only source candidate: archive.search and archive.read remain supported under explicit current grants. Manifests omit call.request; granting or invoking it, including an old grant, returns HTTP 410 cellular_retired. JSON shapes and historical receipt fields below are retained for compatibility, not carrier availability. Current authenticated discovery is authoritative; publication and deployment are separate gates."
   },
   "paths": {
     "/v1/signal-capabilities": {
@@ -16,10 +16,6 @@
         ],
         "x-atlas-required-scopes": [
           "context:read"
-        ],
-        "x-atlas-call-invoke-additional-scopes": [
-          "calls:read",
-          "calls:request"
         ],
         "requestBody": {
           "required": true,
@@ -107,8 +103,16 @@
                 }
               }
             }
+          },
+          "410": {
+            "description": "cellular_retired: call.request is unavailable in native production, including existing grants. Do not retry through a carrier tool, identity or alternate route."
           }
-        }
+        },
+        "description": "Native production supports archive grants only. Historical call.request fields and schemas are retained for compatibility, not authority. Carrier route choices are empty; call.request grant creation and invocation return 410 cellular_retired.",
+        "x-atlas-historical-call-invoke-additional-scopes": [
+          "calls:read",
+          "calls:request"
+        ]
       }
     },
     "/v1/admin/signal-capabilities": {
@@ -328,8 +332,12 @@
                 }
               }
             }
+          },
+          "410": {
+            "description": "cellular_retired: call.request is unavailable in native production, including existing grants. Do not retry through a carrier tool, identity or alternate route."
           }
-        }
+        },
+        "description": "Native production supports archive grants only. Historical call.request fields and schemas are retained for compatibility, not authority. Carrier route choices are empty; call.request grant creation and invocation return 410 cellular_retired."
       }
     }
   },
@@ -455,8 +463,13 @@
           "result": {
             "type": "object"
           }
-        }
+        },
+        "description": "Compatibility receipt shape: carrier-related fields may appear in historical records. They do not make call.request available or prove delivery. Native archive operations retain the same receipt shape."
       }
     }
-  }
+  },
+  "x-atlas-production-mode": "native-only",
+  "x-atlas-retired-capabilities": [
+    "call.request"
+  ]
 }

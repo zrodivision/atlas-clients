@@ -111,7 +111,7 @@ export function workerGuide() {
     availability: "source-only",
     goal: "Help a daily-driver agent turn an owner-approved idea into a bounded computer task, durable receipt and checked artifact.",
     versionInterpretation:
-      "These commands are an unreleased source candidate based on client 0.14.1. The base version alone does not show which branch-only commands were built, published or deployed.",
+      "These commands are an unreleased 0.14.2 source candidate. The candidate version alone does not prove publication, server support or deployment.",
     currentlyPossible: [
       "Install and verify independent client connections",
       "Inspect real server capabilities",

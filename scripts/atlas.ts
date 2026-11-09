@@ -158,7 +158,7 @@ try {
     });
   } else if (command === "setup") {
     output({
-      console: endpoint(process.env.ATLAS_URL ?? "https://connectatlas.io"),
+      console: `${endpoint(process.env.ATLAS_URL ?? "https://connectatlas.io")}/app`,
       next: "Run atlas auth login to sign in or sign up in your browser and approve a line. Then run atlas whoami to verify the connection.",
     });
   } else {

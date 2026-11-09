@@ -11,10 +11,21 @@ const pkg = await json("package.json");
 assert.equal(api.info.version, pkg.version);
 const post = api.paths["/v1/signal-capabilities"].post;
 assert.deepEqual(post["x-atlas-required-scopes"], ["context:read"]);
-assert.deepEqual(post["x-atlas-call-invoke-additional-scopes"], [
+assert.deepEqual(post["x-atlas-historical-call-invoke-additional-scopes"], [
   "calls:read",
   "calls:request",
 ]);
+assert.equal(api["x-atlas-production-mode"], "native-only");
+assert.deepEqual(api["x-atlas-retired-capabilities"], ["call.request"]);
+assert.ok(!("x-atlas-call-invoke-additional-scopes" in post));
+for (const route of Object.values(api.paths) as {
+  post: { responses: Record<string, { description: string }> };
+}[])
+  assert.match(route.post.responses["410"].description, /cellular_retired/);
+assert.ok(
+  api.components.schemas.OperationReceipt.properties.effectStatus,
+  "Historical receipt fields remain compatible, not an active carrier capability",
+);
 const variants = post.requestBody.content["application/json"].schema.oneOf;
 for (const [name, action] of [
   ["atlas_signal_capabilities", "manifest"],

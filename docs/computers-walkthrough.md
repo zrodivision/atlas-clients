@@ -2,7 +2,7 @@
 
 ## Honest demo boundary
 
-The published client baseline is 0.14.1. This branch adds unreleased Cursor
+The published client baseline is 0.14.1. The 0.14.2 source candidate adds unreleased Cursor
 setup and worker validation commands. The `atlas_workers` lifecycle is a
 source candidate, not an advertised hosted capability. A successful client
 installation is not a deployed worker. Until the server advertises the

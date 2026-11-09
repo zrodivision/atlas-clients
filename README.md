@@ -2,9 +2,11 @@
 
 Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
 
-The published client baseline is **0.14.1**. This branch adds an unreleased worker CLI candidate and Cursor setup support. Installing a client, deploying the service and verifying native host behavior are separate steps. See the [computer worker walkthrough](docs/computers-walkthrough.md) for current gates and an honest demo sequence.
+The published client baseline is **0.14.1**. The unreleased **0.14.2** source candidate adds native-only guidance, a worker CLI candidate and Cursor setup support. Cellular calls and SMS are outside the production path. Installing a client, deploying the service and verifying native host behavior are separate steps. See the [computer worker walkthrough](docs/computers-walkthrough.md) for current gates and an honest demo sequence.
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
+
+The browser app entry is https://connectatlas.io/app. Keep `ATLAS_URL` at https://connectatlas.io and remote MCP at https://connectatlas.io/mcp; `/app` is not an API base.
 
 ## Install
 

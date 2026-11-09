@@ -1,5 +1,7 @@
 {
-  "serverVersion": "0.14.1",
+  "serverVersion": "0.14.2",
   "status": "source-candidate",
-  "authorization": "Atlas-issued OAuth with S256 PKCE at the stable /mcp resource"
+  "authorization": "Atlas-issued OAuth with S256 PKCE at the stable /mcp resource",
+  "productionMode": "native-only",
+  "releaseGate": "Unreleased 0.14.2 native-only source candidate; coordinate the immutable server client pin before publication. Current server discovery is authoritative."
 }

@@ -22,6 +22,40 @@ import {
 const scratch = await mkdtemp(join(tmpdir(), "atlas-client-test-"));
 try {
   const files = await packageFiles();
+  const activeCatalog = JSON.parse(
+    files["skills/atlas-local/references/tools.json"],
+  );
+  const names = activeCatalog.tools.map((tool: { name: string }) => tool.name);
+  for (const retired of [
+    "atlas_sms_send",
+    "atlas_sms_turns",
+    "atlas_call_turns",
+    "atlas_call_routes",
+    "atlas_outbound_call",
+    "atlas_call_status",
+    "atlas_call_control",
+  ]) {
+    assert.ok(!names.includes(retired), `Retired carrier tool: ${retired}`);
+    assert.ok(!files["skills/atlas-local/SKILL.md"].includes(retired));
+  }
+  for (const native of [
+    "atlas_signal_status",
+    "atlas_signal_invoke",
+    "atlas_tasks",
+  ])
+    assert.ok(names.includes(native), `Preserve native capability: ${native}`);
+  assert.ok(
+    !names.includes("atlas_workers"),
+    "Workers are not a deployed catalog capability",
+  );
+  assert.match(
+    files["skills/atlas-local/SKILL.md"],
+    /source candidate, not deployed/,
+  );
+  assert.match(
+    files["skills/atlas-local/SKILL.md"],
+    /https:\/\/connectatlas.io\/app/,
+  );
   const destination = join(scratch, "plugin");
   await buildPackage(destination);
   assert.equal(

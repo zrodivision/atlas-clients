@@ -22,3 +22,26 @@ The maintained skill is `skills/atlas/SKILL.md`. Regenerate checked-in plugin co
 The release workflow builds and tests macOS/Linux x64/ARM64 separately, combines their checksums and creates a GitHub prerelease. It does not publish npm or deploy a service. A release's native-host sign-in, refresh and rendering checks are separate from package tests.
 
 Distribution source, public service availability and authenticated identity are distinct. Never include credentials, environment files, account data or operational logs in a release. Review client changes against `contracts/compatibility.json` and keep release claims accurate.
+
+## Native-only candidate release gate
+
+The source candidate is 0.14.2; the latest verified GitHub stable release is 0.14.1.
+The candidate is not published. The optional npm package is not publicly published.
+The active catalog excludes the seven retired carrier tools. Native Signal archive
+and broker tools remain; historical call.request is unavailable. Current runtime
+discovery overrides old installed guides and static references. Computer workers
+remain discovery-gated source candidates, not deployed computers.
+
+Before publication, coordinate package/lock versions, compatibility.serverVersion,
+the canonical guide version, OpenAPI version and generated plugin manifests. Then
+regenerate plugins, run all checks, review the exact public commit, and update the
+private service's immutable public-client commit/hash pin through its own reviewed
+workflow. Do not copy private implementation or account data into this repository.
+A local commit, package build or pin update does not establish publication,
+deployment, OAuth acceptance or end-to-end runtime execution.
+
+The Signal OpenAPI preserves unchanged wire shapes and historical carrier receipt
+fields, with explicit native-only warnings and HTTP 410 behavior. Those fields
+are compatibility records, not available carrier capabilities. Native manifests
+omit call.request; old grants do not bypass retirement. Do not remove historical
+response fields or invent a replacement schema without a reviewed server export.

@@ -1,4 +1,6 @@
-# Atlas clients 0.12.0
+# Atlas clients 0.12.0 (historical)
+
+This historical release note is not current production guidance. Cellular workflows are retired; follow the maintained native-only skill and deployed discovery. Do not use these old publication instructions for the current candidate.
 
 This release aligns the canonical skill and generated host plugins with Atlas service 0.12.0: account-only conversations, explicitly bounded call delegation, captured human speech versus remote evidence, and durable task continuation/recovery. Existing CLI/MCP authentication remains unchanged. Contacts and call consent never grant vault or connector authority.
 

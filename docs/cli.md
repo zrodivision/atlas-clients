@@ -1,5 +1,7 @@
 # Atlas CLI
 
+This branch is the unreleased 0.14.2 native-only source candidate; the published baseline is 0.14.1. Cellular calls and SMS are not production capabilities. Browser app: https://connectatlas.io/app; `ATLAS_URL` remains https://connectatlas.io and MCP remains https://connectatlas.io/mcp.
+
 ## Everyday commands
 
 | Command | Purpose |
