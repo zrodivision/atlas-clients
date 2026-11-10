@@ -97,6 +97,12 @@ case "$out" in *archive.tar.gz) [ "\${ATLAS_TEST_CORRUPT:-}" != 1 ] || printf ba
   const executable = join(env.ATLAS_BIN_DIR, "atlas");
   assert.equal(run(executable, ["--version"]).stdout.trim(), version);
   assert.equal(run(executable, ["auth", "status"]).status, 0);
+  const inspection = run(executable, ["inspect", "--help"]);
+  assert.equal(inspection.status, 0, inspection.stderr);
+  assert.deepEqual(JSON.parse(inspection.stdout).optionalFields, [
+    "workerId",
+    "vaultId",
+  ]);
   const skill = join(home, ".agents/skills/atlas/SKILL.md");
   assert.match(await readFile(skill, "utf8"), /name: atlas\n/);
   assert.match(

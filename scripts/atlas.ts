@@ -16,6 +16,12 @@ import {
   parseWorkerRequest,
   validateWorkerIntent,
 } from "./worker-cli.js";
+import {
+  InspectionError,
+  inspectionHelp,
+  inspectWorkspace,
+  parseInspectionSelection,
+} from "./inspection.js";
 import { constants } from "node:fs";
 import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -78,6 +84,17 @@ try {
           ? workerActionHelp(name)
           : undefined
       : undefined;
+  if (command === "inspect") {
+    if (process.argv.length > 4)
+      throw new InspectionError(
+        "inspection_request_invalid",
+        "Use atlas inspect with at most one JSON argument or request file.",
+      );
+    if (name !== "help") {
+      args = await readWorkerArgument(rawName ?? "{}");
+      parseInspectionSelection(args);
+    }
+  }
   if (command === "workers") {
     if (actionHelp) {
       // Action help is offline and never interpreted as request JSON.
@@ -109,6 +126,8 @@ try {
   }
   if (await distribution(command, process.argv.slice(3))) {
     // Distribution commands do not require an Atlas login.
+  } else if (command === "inspect" && name === "help") {
+    output(inspectionHelp);
   } else if (command === "workers" && (!name || name === "help")) {
     output(workerHelp);
   } else if (validation) {
@@ -147,6 +166,7 @@ try {
         "install-mcp codex|claude|cursor [--name NAME] (native sign-in or Cursor setup handoff)",
         "install (read owner-issued installation token from stdin)",
         "whoami",
+        "inspect [JSON|@request.json] (connection, computer settings, memory access and Signal)",
         "list",
         "call TOOL JSON",
         "read URI",
@@ -237,6 +257,8 @@ try {
         }),
       );
     else if (command === "list") output(await client.listTools());
+    else if (command === "inspect")
+      output(await inspectWorkspace(client, args));
     else if (command === "workers" && name)
       output(await workerCommand(client, name, args));
     else if (command === "call" && name)
@@ -246,7 +268,12 @@ try {
     else throw Error("Use help for supported commands");
   }
 } catch (error) {
-  if (error instanceof LoginReadinessError) {
+  if (error instanceof InspectionError) {
+    console.error(
+      JSON.stringify({ error: error.code, message: error.message }, null, 2),
+    );
+    process.exitCode = 1;
+  } else if (error instanceof LoginReadinessError) {
     console.error(
       JSON.stringify({ error: error.code, ...error.readiness }, null, 2),
     );

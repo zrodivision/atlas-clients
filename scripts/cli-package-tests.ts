@@ -76,6 +76,13 @@ try {
     JSON.parse(setup.stdout).console,
     `${new URL(process.env.ATLAS_URL ?? "https://connectatlas.io").origin}/app`,
   );
+  const inspection = run("inspect", "--help");
+  assert.equal(inspection.status, 0, inspection.stderr);
+  assert.deepEqual(JSON.parse(inspection.stdout).optionalFields, [
+    "workerId",
+    "vaultId",
+  ]);
+  assert.equal(run("inspect", '{"action":"create"}').status, 1);
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
   assert.match(workers.stdout, /Optional client interface/);

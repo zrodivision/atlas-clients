@@ -22,6 +22,7 @@ import {
 } from "@modelcontextprotocol/sdk/client/auth.js";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StreamableHTTPClientTransport } from "@modelcontextprotocol/sdk/client/streamableHttp.js";
+import { inspectWorkspace } from "./inspection.js";
 import { workerCommand } from "./worker-cli.js";
 const hosted = "https://connectatlas.io";
 /** Local hints only: this never opens a browser, binds a port, or contacts Atlas. */
@@ -407,6 +408,8 @@ export async function oauthCli(
       await save();
       result = { profile, identity };
     } else if (command === "list") result = await client.listTools();
+    else if (command === "inspect")
+      result = await inspectWorkspace(client, argument);
     else if (command === "workers" && name)
       result = await workerCommand(client, name, argument);
     else if (command === "call" && name)

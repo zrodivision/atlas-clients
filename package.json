@@ -1,7 +1,7 @@
 {
   "name": "@zrodivision/atlas-clients",
   "private": true,
-  "version": "0.14.2",
+  "version": "0.14.2-rc.1",
   "type": "module",
   "engines": {
     "node": ">=22.23.1"
@@ -10,7 +10,7 @@
     "atlas": "tsx scripts/atlas.ts",
     "check": "tsc --noEmit",
     "format:check": "prettier --check \"scripts/**/*.ts\"",
-    "test": "npm run test:client-package && npm run test:mcp-install && npm run test:cli-package && npm run test:signal-contract && npm run test:worker-cli && npm run test:distribution && npm run test:login-readiness",
+    "test": "npm run test:client-package && npm run test:mcp-install && npm run test:cli-package && npm run test:signal-contract && npm run test:worker-cli && npm run test:distribution && npm run test:login-readiness && npm run test:inspection",
     "test:client-package": "tsx scripts/client-package-tests.ts",
     "test:mcp-install": "tsx scripts/mcp-install-tests.ts",
     "test:cli-package": "tsx scripts/cli-package-tests.ts",
@@ -28,7 +28,8 @@
     "test:signal-contract": "tsx scripts/signal-contract-tests.ts",
     "test:worker-cli": "tsx scripts/worker-cli-tests.ts",
     "test:distribution": "tsx scripts/distribution-tests.ts",
-    "test:login-readiness": "tsx scripts/cli-oauth-readiness-tests.ts"
+    "test:login-readiness": "tsx scripts/cli-oauth-readiness-tests.ts",
+    "test:inspection": "tsx scripts/inspection-tests.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.26.0"

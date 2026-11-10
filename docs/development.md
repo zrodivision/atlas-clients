@@ -45,3 +45,8 @@ fields, with explicit native-only warnings and HTTP 410 behavior. Those fields
 are compatibility records, not available carrier capabilities. Native manifests
 omit call.request; old grants do not bypass retirement. Do not remove historical
 response fields or invent a replacement schema without a reviewed server export.
+
+
+### Read-only inspection integration candidate
+
+`0.14.2-rc.1` is an isolated client prerelease for 0.15 assembly, not the coordinated 0.15 server contract. The existing public MCP catalog and compatibility.serverVersion remain 0.14.2; only package/guide identity and OpenAPI release metadata distinguish this build. Do not update a deployed server pin to this branch without reviewing the coordinated release. `npm run test:inspection` covers read-only composition and actual CLI/OAuth transports with synthetic credentials.
