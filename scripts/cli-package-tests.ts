@@ -41,6 +41,20 @@ try {
     { encoding: "utf8" },
   );
   assert.equal(install.status, 0, install.stderr);
+  const sourceManifest = JSON.parse(
+    await readFile(join(root, "package.json"), "utf8"),
+  );
+  const shippedManifest = JSON.parse(
+    await readFile(
+      join(scratch, "node_modules/@zrodivision/atlas/package.json"),
+      "utf8",
+    ),
+  );
+  assert.equal(
+    shippedManifest.dependencies["@modelcontextprotocol/sdk"],
+    sourceManifest.dependencies["@modelcontextprotocol/sdk"],
+    "shipped SDK pin matches the tested source dependency",
+  );
   const home = join(scratch, "profiles");
   await mkdir(home, { mode: 0o700 });
   const run = (...args: string[]) =>

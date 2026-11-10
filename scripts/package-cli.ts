@@ -59,7 +59,7 @@ await writeFile(
         "computers-walkthrough.md",
         "vault-mirroring.md",
       ],
-      dependencies: { "@modelcontextprotocol/sdk": "1.26.0" },
+      dependencies: { "@modelcontextprotocol/sdk": "1.32.2" },
       publishConfig: { access: "public" },
     },
     null,

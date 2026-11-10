@@ -65,3 +65,12 @@ published synthetic action examples, changed server schemas and single dispatch.
 These loopback fixtures do not establish real OAuth, host acceptance, deployment,
 Codex pairing, hosted subscription eligibility or live provider inference. All
 new guidance is bundled by the existing public CLI/plugin allowlist workflow.
+
+### MCP client dependency security baseline
+
+The source and emitted npm package pin MCP SDK 1.32.2. The reviewed lock also uses
+its compatible patched Hono node-server dependency. SDK fixtures exercise issuer
+binding, preserved issuer metadata and refusal to forward a token request across
+origins; the CLI retains its existing strict origin/redirect guards. Full package
+and native tests remain required after dependency changes. An advisory-free audit
+at one point in time is not a full security certification or live OAuth acceptance.
