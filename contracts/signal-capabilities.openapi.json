@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Atlas scoped Signal capability broker",
-    "version": "0.14.2-rc.2",
+    "version": "0.14.2-rc.3",
     "description": "Native-only source candidate: archive.search and archive.read remain supported under explicit current grants. Manifests omit call.request; granting or invoking it, including an old grant, returns HTTP 410 cellular_retired. JSON shapes and historical receipt fields below are retained for compatibility, not carrier availability. Current authenticated discovery is authoritative; publication and deployment are separate gates."
   },
   "paths": {

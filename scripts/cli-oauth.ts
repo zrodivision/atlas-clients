@@ -1,5 +1,6 @@
 /** Native CLI OAuth. Each profile owns its own refresh chain; never reads host credentials. */
 import { constants } from "node:fs";
+import { version } from "./distribution.js";
 import {
   mkdir,
   access,
@@ -394,7 +395,7 @@ export async function oauthCli(
         fetchFn: safeFetch,
       });
     }
-    client = new Client({ name: "atlas-cli", version: "0.6.1-rc.1" });
+    client = new Client({ name: "atlas-cli", version });
     await client.connect(
       new StreamableHTTPClientTransport(new URL(url.origin + "/mcp"), {
         authProvider: provider,

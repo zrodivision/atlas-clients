@@ -169,7 +169,9 @@ export function workerContract() {
         "Inspect current state and reconcile deliberately. Do not silently replace expectedRevision or taskVersion on a pending request.",
       authorityChanged:
         "Stop. A replacement connection must not impersonate the original principal or replay its receipts.",
-      clientAutomaticRetries: 0,
+      adapterAutomaticRetries: 0,
+      transportAuthentication:
+        "The MCP SDK may resubmit the same wire request after successful authentication refresh. This is not lost-response recovery or new authority; the server must authorize before effects.",
     },
     clientErrors: {
       worker_request_invalid:

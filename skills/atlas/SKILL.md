@@ -9,7 +9,7 @@ Atlas connects an assistant to the context, people and optional computers its ow
 
 ## Guide version and freshness
 
-Guide version: 0.14.2-rc.2. This is an unreleased native-only source candidate; immutable server pin coordination, publication and deployment are separate pending gates. Inspect the deployed server guide and capabilities before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
+Guide version: 0.14.2-rc.3. This is an unreleased native-only source candidate; immutable server pin coordination, publication and deployment are separate pending gates. Inspect the deployed server guide and capabilities before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
 
 
 ## First session: install, verify, explain
@@ -271,7 +271,10 @@ action descriptions, current-authority gates and client error codes. Use
 inputs include it. Examples are independent structural fixtures, not an executable
 lifecycle sequence or authorized IDs. Current authenticated discovery and the served
 guide take precedence. The CLI checks the saved request against the advertised
-schema before sending and never automatically retries a worker mutation.
+schema before sending. The worker adapter makes one tool call and never retries
+a lost response. The MCP transport may resubmit the same request after successful
+authentication refresh; this grants no authority and relies on server authorization
+before effects.
 
 ```json
 {
@@ -281,7 +284,7 @@ schema before sending and never automatically retries a worker mutation.
   "offlineCommands": ["atlas setup guide", "atlas auth diagnose", "atlas workers guide", "atlas workers contract", "atlas workers ACTION --help", "atlas workers validate ACTION @request.json"],
   "workerActions": ["create", "inspect", "run", "cancel", "checkpoint", "restore"],
   "notInstalledVerbs": ["assemble", "deploy", "pair", "interact"],
-  "mutationAutoRetries": 0
+  "adapterMutationRetries": 0
 }
 ```
 

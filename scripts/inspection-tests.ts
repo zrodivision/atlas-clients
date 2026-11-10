@@ -1,5 +1,6 @@
 /** Synthetic MCP fixtures. No owner credentials, live data, provider or grant changes. */
 import assert from "node:assert/strict";
+import { version } from "./distribution.js";
 import { spawn } from "node:child_process";
 import {
   mkdtemp,
@@ -597,7 +598,7 @@ try {
     log = join(scratch, "oauth-calls.jsonl");
   await writeFile(
     shim,
-    `import {appendFileSync} from 'node:fs';\nconst tools=${JSON.stringify([...tools, workerTool])}; const replies=${JSON.stringify(replies)};\nglobalThis.fetch=async(input,init)=>{const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);if(url.href!=='https://atlas.example.test/mcp')throw Error('Unexpected fixture origin'); if(new Headers(init.headers).get('authorization')!=='Bearer ${oauthToken}')throw Error('Unexpected fixture credential'); if(init.method!=='POST')return new Response(null,{status:405}); const message=JSON.parse(init.body); if(message.id===undefined)return new Response(null,{status:202}); let result;if(message.method==='initialize')result={protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'fixture',version:'0'}};else if(message.method==='tools/list')result={tools};else if(message.method==='tools/call'){appendFileSync(${JSON.stringify(log)},JSON.stringify(message.params)+'\\n');result={content:[],structuredContent:replies[message.params.name]};}else throw Error('Unexpected method');return new Response(JSON.stringify({jsonrpc:'2.0',id:message.id,result}),{status:200,headers:{'content-type':'application/json'}});};`,
+    `import {appendFileSync} from 'node:fs';\nconst tools=${JSON.stringify([...tools, workerTool])}; const replies=${JSON.stringify(replies)};\nglobalThis.fetch=async(input,init)=>{const url=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url);if(url.href!=='https://atlas.example.test/mcp')throw Error('Unexpected fixture origin'); if(new Headers(init.headers).get('authorization')!=='Bearer ${oauthToken}')throw Error('Unexpected fixture credential'); if(init.method!=='POST')return new Response(null,{status:405}); const message=JSON.parse(init.body); if(message.method==='initialize' && message.params.clientInfo.version!==${JSON.stringify(version)})throw Error('Wrong client version'); if(message.id===undefined)return new Response(null,{status:202}); let result;if(message.method==='initialize')result={protocolVersion:'2024-11-05',capabilities:{tools:{}},serverInfo:{name:'fixture',version:'0'}};else if(message.method==='tools/list')result={tools};else if(message.method==='tools/call'){appendFileSync(${JSON.stringify(log)},JSON.stringify(message.params)+'\\n');result={content:[],structuredContent:replies[message.params.name]};}else throw Error('Unexpected method');return new Response(JSON.stringify({jsonrpc:'2.0',id:message.id,result}),{status:200,headers:{'content-type':'application/json'}});};`,
   );
   const oauthBefore = await readFile(profile, "utf8");
   const oauth = await run(["inspect", JSON.stringify({ workerId: id })], shim);

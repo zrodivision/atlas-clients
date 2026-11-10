@@ -8,7 +8,7 @@ Instinct assistant with no installed Atlas skill, connectors, credentials or
 personal context. This is an agent-driven test, not a browser UI cohort or a
 preconfigured demo.
 
-This document is source-only preparation on the 0.14.2-rc.2 client candidate for
+This document is source-only preparation on the 0.14.2-rc.3 client candidate for
 0.15 assembly. It does not establish publication, production deployment or
 Instinct compatibility. Public documentation checked on 2026-11-10:
 [Instinct](https://instinct.com/) describes a phone/computer assistant but supplies

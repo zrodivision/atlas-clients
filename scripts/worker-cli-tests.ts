@@ -49,7 +49,7 @@ for (const example of contract.examples) {
     contract.descriptions[example.action as keyof typeof contract.descriptions],
   );
 }
-assert.equal(contract.recovery.clientAutomaticRetries, 0);
+assert.equal(contract.recovery.adapterAutomaticRetries, 0);
 const guide = workerGuide();
 assert.equal(guide.authority, "guidance_only");
 assert.equal(guide.outcomes.response_lost.retry, "never_new_request_id");
