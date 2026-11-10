@@ -49,4 +49,9 @@ response fields or invent a replacement schema without a reviewed server export.
 
 ### Read-only inspection integration candidate
 
-`0.14.2-rc.1` is an isolated client prerelease for 0.15 assembly, not the coordinated 0.15 server contract. The existing public MCP catalog and compatibility.serverVersion remain 0.14.2; only package/guide identity and OpenAPI release metadata distinguish this build. Do not update a deployed server pin to this branch without reviewing the coordinated release. `npm run test:inspection` covers read-only composition and actual CLI/OAuth transports with synthetic credentials.
+`0.14.2-rc.2` is an isolated client prerelease for 0.15 assembly, not the coordinated 0.15 server contract. The existing public MCP catalog and compatibility.serverVersion remain 0.14.2; only package/guide identity and OpenAPI release metadata distinguish this build. Do not update a deployed server pin to this branch without reviewing the coordinated release. `npm run test:inspection` covers read-only composition and actual CLI/OAuth transports with synthetic credentials.
+
+
+### Agent-owned memory mapping
+
+The `0.14.2-rc.2` client candidate adds offline `memory guide` and `memory examples`, a maintained mirror runbook, and schema-validated synthetic call sequences. It changes no backend route, grant, data or synchronization behavior. Run `npm run test:memory-guide` plus the full standard package/native suites. The guide is bundled with the hosted plugin; the detailed runbook is included in the npm/marketplace distribution. Final 0.15 versioning and server guide pinning remain coordinated release work.

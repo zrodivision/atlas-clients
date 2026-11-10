@@ -103,6 +103,9 @@ case "$out" in *archive.tar.gz) [ "\${ATLAS_TEST_CORRUPT:-}" != 1 ] || printf ba
     "workerId",
     "vaultId",
   ]);
+  const memory = run(executable, ["memory", "guide"]);
+  assert.equal(memory.status, 0, memory.stderr);
+  assert.equal(JSON.parse(memory.stdout).operationSent, false);
   const skill = join(home, ".agents/skills/atlas/SKILL.md");
   assert.match(await readFile(skill, "utf8"), /name: atlas\n/);
   assert.match(

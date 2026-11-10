@@ -192,8 +192,15 @@ Owner-issued bearer installations remain supported through `atlas install` using
 
 `atlas inspect` observes the selected CLI connection, scoped memory access and Signal archive status together. To include a known computer, use `atlas inspect '{"workerId":"11111111-1111-4111-8111-111111111111"}'`. An optional `vaultId` limits the displayed memory selection and Signal discovery. `atlas inspect --help` requires no profile or network.
 
-This unreleased 0.14.2-rc.1 client builds toward 0.15 while retaining the reviewed 0.14.2 wire catalog. It does not publish a new server contract. Discovery is paginated and bounded; duplicate or incomplete discovery sends no inspection calls. Only advertised read tools are called. A failed identity read blocks the remaining sections. Individual permission, compatibility and transport failures are reported without raw server errors or automatic retries.
+This unreleased 0.14.2-rc.2 client builds toward 0.15 while retaining the reviewed 0.14.2 wire catalog. It does not publish a new server contract. Discovery is paginated and bounded; duplicate or incomplete discovery sends no inspection calls. Only advertised read tools are called. A failed identity read blocks the remaining sections. Individual permission, compatibility and transport failures are reported without raw server errors or automatic retries.
 
 Reports contain bounded allowlisted metadata, not memory contents, prompts, provider credentials or runtime logs. They are independent reads and may differ if permissions change between calls. Missing tools, a denied read or a non-selected computer makes the report partial, never an empty-resource assertion. The computer adapter remains unavailable on current production and cannot be enabled by this command. No worker creation, mutation, Signal refresh or connector search occurs. Native MCP plugin users can follow the equivalent workflow in the bundled skill without a separate CLI login.
 
 Signal and computers are independent. No worker selection is needed for Signal status. The archive report explicitly leaves standalone representative messaging and calling readiness unassessed; it is not a live-representative acceptance test.
+
+
+## Map a memory system to Vault
+
+`atlas memory guide` is an offline agent-facing field map and reconciliation runbook. It covers stable source IDs, durable local mapping/receipt state, import versus deliberate edits, unchanged-payload checks, exact-request retries, conflicts, deletion limitations and read/export boundaries. `atlas memory examples` returns complete synthetic first-import, update, exact-retry, read and export calls validated against the checked-in public MCP schemas. Both commands work without a profile and do not inspect local memories or contact Atlas. There is no `memory sync` runner.
+
+See [the mirror workflow](vault-mirroring.md) for scope, normal operation and remaining service gaps. Native hosted-plugin agents use the same guidance in the canonical skill and call only currently advertised Vault tools under the user's explicit transfer scope.

@@ -22,6 +22,7 @@ import {
   inspectWorkspace,
   parseInspectionSelection,
 } from "./inspection.js";
+import { memoryGuide, memoryExamples } from "./memory-guidance.js";
 import { constants } from "node:fs";
 import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -84,6 +85,15 @@ try {
           ? workerActionHelp(name)
           : undefined
       : undefined;
+  if (
+    command === "memory" &&
+    (process.argv.length > 4 ||
+      (name && !["help", "guide", "examples"].includes(name)))
+  )
+    throw new InspectionError(
+      "memory_guidance_invalid",
+      "Use atlas memory guide or atlas memory examples. Both are offline; no sync command is installed.",
+    );
   if (command === "inspect") {
     if (process.argv.length > 4)
       throw new InspectionError(
@@ -126,6 +136,8 @@ try {
   }
   if (await distribution(command, process.argv.slice(3))) {
     // Distribution commands do not require an Atlas login.
+  } else if (command === "memory") {
+    output(name === "examples" ? memoryExamples() : memoryGuide());
   } else if (command === "inspect" && name === "help") {
     output(inspectionHelp);
   } else if (command === "workers" && (!name || name === "help")) {
@@ -171,6 +183,7 @@ try {
         "call TOOL JSON",
         "read URI",
         "workers help (optional, discovery-gated worker interface)",
+        "memory guide|examples (offline Vault mirror mapping and recovery)",
       ],
       config: ["ATLAS_URL", "ATLAS_HOME", "ATLAS_PROFILE"],
       approval:

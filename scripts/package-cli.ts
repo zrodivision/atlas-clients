@@ -52,7 +52,13 @@ await writeFile(
         "Atlas network CLI: identities, vaults, messaging and services",
       bin: { atlas: "dist/atlas.js" },
       engines: { node: ">=22.23.1" },
-      files: ["dist", "skills", "README.md", "computers-walkthrough.md"],
+      files: [
+        "dist",
+        "skills",
+        "README.md",
+        "computers-walkthrough.md",
+        "vault-mirroring.md",
+      ],
       dependencies: { "@modelcontextprotocol/sdk": "1.26.0" },
       publishConfig: { access: "public" },
     },
@@ -70,6 +76,10 @@ await writeFile(
     "(cli.md#computer-backed-worker-interface-source-candidate)",
     "(README.md#computer-backed-worker-interface-source-candidate)",
   ),
+);
+await writeFile(
+  join(destination, "vault-mirroring.md"),
+  await readFile(join(root, "docs/vault-mirroring.md")),
 );
 await cp(join(root, "skills"), join(destination, "skills"), {
   recursive: true,

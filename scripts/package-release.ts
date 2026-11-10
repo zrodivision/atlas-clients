@@ -58,6 +58,10 @@ await writeFile(
     "(CLI.md#computer-backed-worker-interface-source-candidate)",
   ),
 );
+await writeFile(
+  join(marketplace, "vault-mirroring.md"),
+  await readFile(join(root, "docs/vault-mirroring.md")),
+);
 const build = spawnSync(
   process.execPath,
   ["--import", "tsx", join(root, "scripts/package-cli.ts")],
@@ -78,6 +82,7 @@ if (
       ![
         "README.md",
         "computers-walkthrough.md",
+        "vault-mirroring.md",
         "package.json",
         "dist/atlas.js",
         "dist/cli-oauth.js",
@@ -85,6 +90,7 @@ if (
         "dist/distribution.js",
         "dist/worker-cli.js",
         "dist/inspection.js",
+        "dist/memory-guidance.js",
         "dist/worker-guidance.js",
         "skills/atlas/SKILL.md",
       ].includes(f.path),

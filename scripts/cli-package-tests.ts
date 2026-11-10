@@ -83,6 +83,19 @@ try {
     "vaultId",
   ]);
   assert.equal(run("inspect", '{"action":"create"}').status, 1);
+  assert.match(
+    await readFile(
+      join(scratch, "node_modules/@zrodivision/atlas/vault-mirroring.md"),
+      "utf8",
+    ),
+    /durable private ledger/,
+  );
+  const memory = run("memory", "guide");
+  assert.equal(memory.status, 0, memory.stderr);
+  assert.equal(JSON.parse(memory.stdout).sourceRead, false);
+  const memoryExamples = run("memory", "examples");
+  assert.equal(memoryExamples.status, 0, memoryExamples.stderr);
+  assert.equal(JSON.parse(memoryExamples.stdout).synthetic, true);
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
   assert.match(workers.stdout, /Optional client interface/);
