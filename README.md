@@ -8,6 +8,21 @@ For remote MCP, open your harness’s custom connector settings, add the hosted 
 
 The browser app entry is https://connectatlas.io/app. Keep `ATLAS_URL` at https://connectatlas.io and remote MCP at https://connectatlas.io/mcp; `/app` is not an API base.
 
+## Start from a fresh assistant
+
+Ask your assistant to **install Atlas**. It should discover a supported connection,
+guide you through your own sign-in and approval, verify the account and Line,
+then give you a short crash course. No prior skills, other connectors or personal
+context are required. Atlas means Zero Division's service at https://connectatlas.io;
+if the name is ambiguous, the assistant should clarify rather than install a
+different product.
+
+Start with native remote MCP when your host supports it. A missing custom-connector
+feature or a cloud CLI without browser/loopback login is a setup blocker, not a
+reason to copy another client's credentials. Instinct is a planned first cold-start
+host; compatibility has not been established by this source change. See the
+[first-session guide and acceptance plan](docs/first-session.md).
+
 ## Install
 
 macOS (Apple Silicon or Intel) and Linux (ARM64 or x64, glibc; including WSL):
