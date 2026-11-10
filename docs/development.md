@@ -55,3 +55,13 @@ response fields or invent a replacement schema without a reviewed server export.
 ### Agent-owned memory mapping
 
 The `0.14.2-rc.2` client candidate adds offline `memory guide` and `memory examples`, a maintained mirror runbook, and schema-validated synthetic call sequences. It changes no backend route, grant, data or synchronization behavior. Run `npm run test:memory-guide` plus the full standard package/native suites. The guide is bundled with the hosted plugin; the detailed runbook is included in the npm/marketplace distribution. Final 0.15 versioning and server guide pinning remain coordinated release work.
+
+### Agent-first setup and operation guidance
+
+`npm run test:setup-guide` verifies offline/no-profile cold starts, schema-checked
+read-only MCP examples, independent synthetic CLI profiles, repeated identity
+verification and refusal to borrow another profile. Worker tests validate all
+published synthetic action examples, changed server schemas and single dispatch.
+These loopback fixtures do not establish real OAuth, host acceptance, deployment,
+Codex pairing, hosted subscription eligibility or live provider inference. All
+new guidance is bundled by the existing public CLI/plugin allowlist workflow.

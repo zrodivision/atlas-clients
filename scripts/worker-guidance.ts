@@ -1,4 +1,5 @@
 /** Public, offline workflow guidance. Never evidence of server authority. */
+import { personalComputerGuide } from "./setup-guidance.js";
 export const workerActions = {
   create: ["workerId", "requestId", "lineId", "label"],
   inspect: ["workerId"],
@@ -15,6 +16,53 @@ export const workerActions = {
   restore: ["workerId", "requestId", "expectedRevision", "checkpointId"],
 } as const;
 
+const workerDescriptions = {
+  create:
+    "Request creation of one worker bound to the selected authorized Line. An admission receipt is not deployment, readiness, Codex pairing or live inference.",
+  inspect:
+    "Read current state of this exact worker. Does not create a worker, change authority or prove an unreported external effect completed.",
+  run: "Request one bounded run of an existing canonical task at its observed admission version and the worker's current revision. Does not create a task or grant tools/model access.",
+  cancel:
+    "Request cancellation at the observed worker revision. Acceptance is not whole-job termination or confirmation that billing stopped.",
+  checkpoint:
+    "Request a checkpoint at the observed worker revision. A returned checkpoint does not establish that in-flight external effects are reversible.",
+  restore:
+    "Request restoration of a checkpoint returned by this exact worker. Does not restore external effects, credentials, grants or canonical task authority.",
+} as const;
+
+/** Synthetic examples are local parser inputs, never authorized resources. */
+export function workerExamples() {
+  const workerId = "11111111-1111-4111-8111-111111111111";
+  const lineId = "33333333-3333-4333-8333-333333333333";
+  const taskId = "44444444-4444-4444-8444-444444444444";
+  return Object.keys(workerActions).map((action, index) => {
+    const request: Record<string, unknown> = { workerId };
+    if (action !== "inspect")
+      request.requestId = `22222222-2222-4222-8222-22222222222${index}`;
+    if (action !== "create" && action !== "inspect")
+      request.expectedRevision = 1;
+    if (action === "create")
+      Object.assign(request, { lineId, label: "Synthetic Personal Computer" });
+    if (action === "run")
+      Object.assign(request, {
+        taskId,
+        taskVersion: 1,
+        prompt:
+          "Using only the selected synthetic fixture, write a short report and return its artifact reference. Do not contact external services.",
+      });
+    if (action === "restore") request.checkpointId = "v1";
+    return {
+      action,
+      synthetic: true,
+      serverChecked: false,
+      operationSent: false,
+      sequence: false,
+      cliArguments: request,
+      mcpArguments: { action, ...request },
+    };
+  });
+}
+
 export function workerContract() {
   const uuid = {
     type: "string",
@@ -29,13 +77,39 @@ export function workerContract() {
     maximum: Number.MAX_SAFE_INTEGER,
   };
   const properties: Record<string, unknown> = {
-    workerId: uuid,
-    requestId: uuid,
-    lineId: uuid,
-    taskId: uuid,
-    expectedRevision: version,
-    taskVersion: version,
+    workerId: {
+      ...uuid,
+      description:
+        "Stable worker identity. Generate once for a new create intent; otherwise use the exact authorized worker ID already returned or saved.",
+    },
+    requestId: {
+      ...uuid,
+      description:
+        "Unique identity for one logical mutation. Save with the complete request before dispatch; never change it to recover an uncertain effect.",
+    },
+    lineId: {
+      ...uuid,
+      description:
+        "Exact current authorized Line selected from verified registration/discovery. A synthetic example ID or display name is not authority.",
+    },
+    taskId: {
+      ...uuid,
+      description:
+        "Existing authorized canonical task identity. This operation does not create a task from an arbitrary UUID.",
+    },
+    expectedRevision: {
+      ...version,
+      description:
+        "Observed worker revision for this deliberate mutation. A conflict requires inspection, not automatic rebasing.",
+    },
+    taskVersion: {
+      ...version,
+      description:
+        "Observed canonical task admission version saved with this run intent. It becomes immutable initialTaskVersion for the run, separate from later authority snapshots.",
+    },
     label: {
+      description:
+        "Human-readable worker label, not identity or authority. Nonblank under ECMAScript trim; no NUL; at most 80 UTF-16 code units.",
       type: "string",
       minLength: 1,
       maxLength: 80,
@@ -43,6 +117,8 @@ export function workerContract() {
       "x-maxUtf16CodeUnits": 80,
     },
     prompt: {
+      description:
+        "Bounded instructions using only authorized inputs. Not a grant, credential carrier or task-creation mechanism. Nonblank, no NUL, at most 32768 UTF-8 bytes.",
       type: "string",
       minLength: 1,
       maxLength: 32768,
@@ -50,6 +126,8 @@ export function workerContract() {
       "x-maxUtf8Bytes": 32768,
     },
     checkpointId: {
+      description:
+        "Checkpoint reference actually returned for this worker. Matching its syntax alone does not establish provenance or restore external effects.",
       type: "string",
       minLength: 2,
       maxLength: 21,
@@ -65,6 +143,49 @@ export function workerContract() {
     serverChecked: false,
     operationSent: false,
     tool: "atlas_workers",
+    descriptions: workerDescriptions,
+    examples: workerExamples(),
+    authorization: {
+      principal:
+        "This CLI profile or native MCP installation, never a human session or another harness credential.",
+      verify: [
+        "live tool discovery and exact advertised request schema",
+        "current account, installation and Line",
+        "selected worker and canonical task authority",
+        "runtime, driver, input/tool access and approved spend",
+      ],
+      discoveryGrantsAuthority: false,
+      promptGrantsAuthority: false,
+    },
+    recovery: {
+      inspect: "atlas workers inspect @inspect-request.json",
+      inspectRequest:
+        "Use only workerId from the saved mutation; inspect takes no requestId and creates no operation.",
+      mutation:
+        "Persist the complete request, principal, origin, workerId and requestId before dispatch. One logical mutation has one immutable request; requestId is not an auto-retry switch.",
+      responseLoss:
+        "Inspect that worker under the same current authority and use the server's documented recovery. Never blindly replay or allocate a new requestId while the outcome is uncertain.",
+      revisionConflict:
+        "Inspect current state and reconcile deliberately. Do not silently replace expectedRevision or taskVersion on a pending request.",
+      authorityChanged:
+        "Stop. A replacement connection must not impersonate the original principal or replay its receipts.",
+      clientAutomaticRetries: 0,
+    },
+    clientErrors: {
+      worker_request_invalid:
+        "Invalid local action, JSON, value or bound. Nothing was sent.",
+      worker_request_fields_invalid:
+        "Missing/unsupported local fields. Only expected field names and unsupported count are returned; input is not echoed.",
+      worker_discovery_ambiguous: "Duplicate worker tools. Nothing was sent.",
+      worker_discovery_incomplete:
+        "Discovery cursor repeated or exceeded 20 pages. Nothing was sent.",
+      worker_capability_unavailable:
+        "Tool or action absent from complete live discovery. Nothing was sent.",
+      worker_contract_mismatch:
+        "Saved request failed the usable advertised schema. Nothing was sent; review the server contract before changing intent.",
+    },
+    serverErrors:
+      "Returned unchanged by the server; this client does not invent server error codes. A transport failure is an unknown effect, not a no-op guarantee.",
     cli: {
       validate: "atlas workers validate ACTION @request.json",
       execute: "atlas workers ACTION @request.json",
@@ -91,7 +212,11 @@ export function workerContract() {
       oneOf: Object.entries(workerActions).map(([action, fields]) => ({
         type: "object",
         properties: {
-          action: { const: action },
+          action: {
+            const: action,
+            description:
+              workerDescriptions[action as keyof typeof workerDescriptions],
+          },
           ...Object.fromEntries(
             fields.map((field) => [field, properties[field]]),
           ),
@@ -109,6 +234,7 @@ export function workerGuide() {
     artifact: "agent_workflow",
     authority: "guidance_only",
     availability: "source-only",
+    firstComputer: personalComputerGuide(),
     goal: "Help a daily-driver agent turn an owner-approved idea into a bounded computer task, durable receipt and checked artifact.",
     versionInterpretation:
       "These commands are an unreleased 0.14.2 source candidate. The candidate version alone does not prove publication, server support or deployment.",
@@ -236,6 +362,10 @@ export function workerGuide() {
       },
     ],
     outcomes: {
+      contract_mismatch: {
+        retry: "none",
+        next: "Read the current advertised schema and server guide; do not rewrite a saved pending mutation to make it pass.",
+      },
       capability_absent: {
         retry: "none",
         next: "Report exact unavailable capability; prepare offline only.",
@@ -284,6 +414,12 @@ export function workerActionHelp(action: string) {
   return {
     schemaVersion: 1,
     action,
+    description: workerDescriptions[action as keyof typeof workerDescriptions],
+    readOnly: action === "inspect",
+    example: workerExamples().find((example) => example.action === action),
+    authorization: contract.authorization,
+    recovery: contract.recovery,
+    clientErrors: contract.clientErrors,
     authority: "guidance_only",
     availability: "source-only",
     validate: `atlas workers validate ${action} @request.json`,

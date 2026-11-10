@@ -92,6 +92,7 @@ if (
         "dist/inspection.js",
         "dist/memory-guidance.js",
         "dist/worker-guidance.js",
+        "dist/setup-guidance.js",
         "skills/atlas/SKILL.md",
       ].includes(f.path),
   )

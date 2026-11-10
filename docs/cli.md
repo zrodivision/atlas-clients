@@ -204,3 +204,26 @@ Signal and computers are independent. No worker selection is needed for Signal s
 `atlas memory guide` is an offline agent-facing field map and reconciliation runbook. It covers stable source IDs, durable local mapping/receipt state, import versus deliberate edits, unchanged-payload checks, exact-request retries, conflicts, deletion limitations and read/export boundaries. `atlas memory examples` returns complete synthetic first-import, update, exact-retry, read and export calls validated against the checked-in public MCP schemas. Both commands work without a profile and do not inspect local memories or contact Atlas. There is no `memory sync` runner.
 
 See [the mirror workflow](vault-mirroring.md) for scope, normal operation and remaining service gaps. Native hosted-plugin agents use the same guidance in the canonical skill and call only currently advertised Vault tools under the user's explicit transfer scope.
+
+## Machine-readable cold start (source candidate)
+
+`atlas setup guide` (also `atlas setup --help`) returns offline JSON without reading
+profiles or contacting Atlas. It selects native MCP or standalone CLI setup, gives
+schema-checked read-only verification examples, separates independent installations
+from deliberately shared Lines and explains pending/revoked/stale recovery.
+`atlas setup` retains its Console link. Extra setup arguments fail without side effects.
+
+The Personal Computer section records conversation → assembly → deployment →
+pairing → interaction as acceptance stages, not executable verbs. Codex pairing is
+conditional on the actual supported deployment and authentication model. A separate
+platform-funded Luna fallback requires explicit selection and its own adapter,
+budget and authority. No provider credentials or model-selection fields are added.
+
+`atlas workers contract` includes synthetic examples for each of the six existing
+actions, precise descriptions, authority checks and safe recovery. The examples are
+not a lifecycle sequence. `atlas workers ACTION --help` gives the corresponding
+example and contract. Before dispatch the CLI validates against live discovery;
+`worker_contract_mismatch` means the current request/schema could not be validated
+and no worker operation was sent. It does not mean the remote deployment is broken.
+Inspect the server guide before preparing a deliberate new intent. Response loss,
+revocation and stale revisions never trigger automatic mutation retries.

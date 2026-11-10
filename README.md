@@ -12,7 +12,9 @@ The browser app entry is https://connectatlas.io/app. Keep `ATLAS_URL` at https:
 
 Ask your assistant to **install Atlas**. It should discover a supported connection,
 guide you through your own sign-in and approval, verify the account and Line,
-then give you a short crash course. No prior skills, other connectors or personal
+then give you a short crash course. The source candidate also provides offline
+`atlas setup guide` JSON for connection routes and Personal Computer acceptance gates.
+No prior skills, other connectors or personal
 context are required. Atlas means Zero Division's service at https://connectatlas.io;
 if the name is ambiguous, the assistant should clarify rather than install a
 different product.

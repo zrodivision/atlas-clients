@@ -16,7 +16,7 @@ not match the worker's execution harness.
 
 ## 1. Connect the daily driver
 
-For machine-first guidance, start with `atlas --help`, `atlas workers guide`
+For machine-first guidance, start with `atlas --help`, `atlas setup guide`, `atlas workers guide`
 and `atlas workers contract`. They require no credentials. The guide supplies
 goal-fit examples, minimal questions, confirmation boundaries, concise result
 templates and recovery decisions. The contract supplies strict request variants
@@ -174,3 +174,47 @@ require their own observed acceptance.
 Host references: [Cursor skills](https://cursor.com/docs/skills),
 [Cursor MCP](https://cursor.com/docs/mcp), and
 [Cursor CLI MCP authentication](https://cursor.com/docs/cli/mcp).
+
+## First Personal Computer: pairing and live interaction
+
+The first acceptance target uses the owner's Codex-backed Personal Computer when
+that deployment and authentication method are supported. Conversation, assembly,
+deployment, pairing and interaction are stages to verify, not additional CLI verbs.
+Use `atlas setup guide` for machine-readable routes and gates; no `atlas pair` or
+`atlas workers deploy` command is implemented by this candidate.
+
+A dedicated Atlas-hosted computer is not automatically eligible for personal
+subscription authentication. [Official app-server guidance](https://learn.chatgpt.com/docs/app-server#auth-endpoints)
+excludes managed authentication for commercial or hosted services. Verify the
+current integration model and terms before offering owner pairing. Device login
+availability alone does not settle hosted eligibility. If an eligible route is not
+established, mark pairing BLOCKED and preserve the prepared plan.
+
+Atlas account/Line approval and Codex driver sign-in are independent. Use only the
+installed driver's current supported owner-facing flow on the exact deployed
+computer. Keep credentials isolated there. Never copy an existing local auth file,
+borrow another harness login or put tokens, cookies or one-time codes in a prompt,
+chat transcript, saved request, log or artifact. Interrupted pairing requires
+inspection/resumption of that existing flow, not hidden credentials or a new run.
+
+The separate platform-funded fallback target uses Luna per Worker/computer with a
+stronger Astra/Fable agent steering builds/workers. Verify a reviewed provider
+adapter, current worker-scoped authority and the operator-funded budget. Do not
+silently change to that route or bill a user's personal credential when Codex is
+blocked. Model labels here are intended roles, not implemented provider IDs or new
+fields in `atlas_workers` requests.
+
+For either explicitly selected route, record PASS/FAIL/BLOCKED/NOT_RUN independently:
+
+1. Reviewed client/guide/runtime versions and exact authenticated Atlas identity.
+2. Actual deployed computer identity, ready runtime and current tool/data authority.
+3. Supported inference route and its own approval/entitlement/budget evidence.
+4. One bounded synthetic task through the selected driver, not an echo fixture.
+5. Durable canonical task outcome and an independently opened artifact.
+6. Interruption recovery without a duplicate task or effect.
+7. Confirmed whole-job stopping and cleanup; process-group absence alone is not proof.
+
+Record only credential-free evidence. An assembled package, provision receipt,
+login status, active process, returned model text and completed business artifact
+are different observations. Preserve uncertainty and report the first incomplete
+gate with the smallest next decision.

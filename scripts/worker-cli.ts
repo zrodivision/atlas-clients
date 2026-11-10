@@ -3,6 +3,7 @@ import { constants } from "node:fs";
 import { open } from "node:fs/promises";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { workerActions } from "./worker-guidance.js";
+import { AjvJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/ajv-provider.js";
 
 const toolName = "atlas_workers";
 type Action = keyof typeof workerActions;
@@ -250,6 +251,21 @@ export async function workerCommand(
     throw new WorkerCommandError(
       "This server does not advertise the requested atlas_workers action. No worker operation was sent.",
       "worker_capability_unavailable",
+    );
+  // Check the exact discovered schema, not just an action name. Never echo schema
+  // validation errors: property names and const values can contain private data.
+  let matches = false;
+  try {
+    matches = new AjvJsonSchemaValidator().getValidator(tool.inputSchema)(
+      request,
+    ).valid;
+  } catch {
+    // Unresolvable references and unsupported schema syntax fail closed.
+  }
+  if (!matches)
+    throw new WorkerCommandError(
+      "The saved request does not match a usable advertised worker schema. No worker operation was sent; inspect the current server guide before changing intent.",
+      "worker_contract_mismatch",
     );
   // Exactly one call. Transport failures and uncertain results are never retried here.
   const result = await client.callTool({ name: toolName, arguments: request });

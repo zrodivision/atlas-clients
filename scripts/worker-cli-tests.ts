@@ -37,6 +37,19 @@ assert.equal(contract.availability, "source-only");
 assert.equal(contract.operationSent, false);
 assert.deepEqual(contract.inputSchema.properties.action.enum, actions);
 assert.equal(contract.inputSchema.oneOf.length, 6);
+for (const example of contract.examples) {
+  assert.equal(example.synthetic, true);
+  assert.equal(example.sequence, false);
+  assert.equal(validateSchema(example.mcpArguments).valid, true);
+  assert.deepEqual(
+    parseWorkerRequest(example.action, JSON.stringify(example.cliArguments)),
+    example.mcpArguments,
+  );
+  assert.ok(
+    contract.descriptions[example.action as keyof typeof contract.descriptions],
+  );
+}
+assert.equal(contract.recovery.clientAutomaticRetries, 0);
 const guide = workerGuide();
 assert.equal(guide.authority, "guidance_only");
 assert.equal(guide.outcomes.response_lost.retry, "never_new_request_id");
@@ -262,6 +275,43 @@ await assert.rejects(
   ),
   /ambiguous|incomplete/,
 );
+// Advertising a verb alone cannot override the discovered request schema.
+for (const inputSchema of [
+  {
+    type: "object",
+    properties: { action: { enum: actions } },
+    required: ["newRequiredField"],
+  },
+  {
+    type: "object",
+    properties: {
+      action: { enum: actions },
+      label: { const: "synthetic-private-server-value" },
+    },
+  },
+  {
+    type: "object",
+    properties: { action: { enum: actions } },
+    $ref: "#/missing",
+  },
+]) {
+  await assert.rejects(
+    workerCommand(
+      fixture([{ tools: [{ ...tool, inputSchema }] }]),
+      "create",
+      argumentsText,
+    ),
+    (error: unknown) => {
+      assert.ok(error instanceof Error);
+      assert.equal(
+        (error as { code?: string }).code,
+        "worker_contract_mismatch",
+      );
+      assert.equal(error.message.includes("synthetic-private"), false);
+      return true;
+    },
+  );
+}
 assert.ok(
   calls.every((entry) => "discovery" in (entry as object)),
   "unsupported/incomplete discovery never mutates",

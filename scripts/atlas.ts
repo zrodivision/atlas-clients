@@ -23,6 +23,7 @@ import {
   parseInspectionSelection,
 } from "./inspection.js";
 import { memoryGuide, memoryExamples } from "./memory-guidance.js";
+import { setupGuide } from "./setup-guidance.js";
 import { constants } from "node:fs";
 import { mkdir, open, readFile, realpath, stat } from "node:fs/promises";
 import { homedir } from "node:os";
@@ -94,6 +95,14 @@ try {
       "memory_guidance_invalid",
       "Use atlas memory guide or atlas memory examples. Both are offline; no sync command is installed.",
     );
+  if (
+    command === "setup" &&
+    (process.argv.length > 4 || (name && !["guide", "help"].includes(name)))
+  )
+    throw new InspectionError(
+      "setup_guidance_invalid",
+      "Use atlas setup or atlas setup guide. Guidance is offline and does not create access.",
+    );
   if (command === "inspect") {
     if (process.argv.length > 4)
       throw new InspectionError(
@@ -136,6 +145,8 @@ try {
   }
   if (await distribution(command, process.argv.slice(3))) {
     // Distribution commands do not require an Atlas login.
+  } else if (command === "setup" && name) {
+    output(setupGuide());
   } else if (command === "memory") {
     output(name === "examples" ? memoryExamples() : memoryGuide());
   } else if (command === "inspect" && name === "help") {
@@ -174,7 +185,7 @@ try {
         "skill install codex|claude|cursor|both",
         "auth login|status|logout (browser sign-in; no checkout required)",
         "auth diagnose (offline browser-login readiness; reads no credentials)",
-        "setup",
+        "setup [guide] (offline connection routes and Personal Computer acceptance gates)",
         "install-mcp codex|claude|cursor [--name NAME] (native sign-in or Cursor setup handoff)",
         "install (read owner-issued installation token from stdin)",
         "whoami",
@@ -192,7 +203,7 @@ try {
   } else if (command === "setup") {
     output({
       console: `${endpoint(process.env.ATLAS_URL ?? "https://connectatlas.io")}/app`,
-      next: "Run atlas auth login to sign in or sign up in your browser and approve a line. Then run atlas whoami to verify the connection.",
+      next: "Run atlas setup guide for supported routes. Before CLI login, run atlas auth diagnose; then use atlas auth login for owner approval and atlas whoami to verify the connection.",
     });
   } else {
     let url: string;

@@ -76,6 +76,18 @@ try {
     JSON.parse(setup.stdout).console,
     `${new URL(process.env.ATLAS_URL ?? "https://connectatlas.io").origin}/app`,
   );
+  const guide = run("setup", "guide");
+  assert.equal(guide.status, 0, guide.stderr);
+  assert.equal(JSON.parse(guide.stdout).credentialsRead, false);
+  assert.equal(
+    JSON.parse(guide.stdout).firstComputer.executableSetupCommand,
+    null,
+  );
+  assert.deepEqual(
+    JSON.parse(run("setup", "--help").stdout),
+    JSON.parse(guide.stdout),
+  );
+  assert.equal(run("setup", "guide", "extra").status, 1);
   const inspection = run("inspect", "--help");
   assert.equal(inspection.status, 0, inspection.stderr);
   assert.deepEqual(JSON.parse(inspection.stdout).optionalFields, [

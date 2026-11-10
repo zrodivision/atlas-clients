@@ -10,7 +10,7 @@
     "atlas": "tsx scripts/atlas.ts",
     "check": "tsc --noEmit",
     "format:check": "prettier --check \"scripts/**/*.ts\"",
-    "test": "npm run test:client-package && npm run test:mcp-install && npm run test:cli-package && npm run test:signal-contract && npm run test:worker-cli && npm run test:distribution && npm run test:login-readiness && npm run test:inspection && npm run test:memory-guide && npm run test:first-session",
+    "test": "npm run test:client-package && npm run test:mcp-install && npm run test:cli-package && npm run test:signal-contract && npm run test:worker-cli && npm run test:distribution && npm run test:login-readiness && npm run test:inspection && npm run test:memory-guide && npm run test:first-session && npm run test:setup-guide",
     "test:client-package": "tsx scripts/client-package-tests.ts",
     "test:mcp-install": "tsx scripts/mcp-install-tests.ts",
     "test:cli-package": "tsx scripts/cli-package-tests.ts",
@@ -31,7 +31,8 @@
     "test:login-readiness": "tsx scripts/cli-oauth-readiness-tests.ts",
     "test:inspection": "tsx scripts/inspection-tests.ts",
     "test:memory-guide": "tsx scripts/memory-guidance-tests.ts",
-    "test:first-session": "tsx scripts/first-session-tests.ts"
+    "test:first-session": "tsx scripts/first-session-tests.ts",
+    "test:setup-guide": "tsx scripts/setup-guidance-tests.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.26.0"

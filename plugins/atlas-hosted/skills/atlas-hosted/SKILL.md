@@ -260,6 +260,63 @@ runtime. Save exact mutation intent; inspect and reconcile unknown effects inste
 of launching a new operation. Verify the artifact and business outcome separately
 from a running process or completed model response.
 
+## Machine-readable setup and worker guidance (source candidate)
+
+`atlas setup guide` returns offline JSON for supported connection routes, exact
+read-only verification calls, independent agent identities and recovery decisions.
+It reads no credentials and performs no installation, login or network action.
+`atlas workers contract` returns strict request variants, synthetic CLI/MCP examples,
+action descriptions, current-authority gates and client error codes. Use
+`atlas workers ACTION --help` for one action. CLI inputs omit `action`; native MCP
+inputs include it. Examples are independent structural fixtures, not an executable
+lifecycle sequence or authorized IDs. Current authenticated discovery and the served
+guide take precedence. The CLI checks the saved request against the advertised
+schema before sending and never automatically retries a worker mutation.
+
+```json
+{
+  "schemaVersion": 1,
+  "availability": "source-only",
+  "authority": "guidance_only",
+  "offlineCommands": ["atlas setup guide", "atlas auth diagnose", "atlas workers guide", "atlas workers contract", "atlas workers ACTION --help", "atlas workers validate ACTION @request.json"],
+  "workerActions": ["create", "inspect", "run", "cancel", "checkpoint", "restore"],
+  "notInstalledVerbs": ["assemble", "deploy", "pair", "interact"],
+  "mutationAutoRetries": 0
+}
+```
+
+### First Personal Computer acceptance target
+
+The first demo target is conversation → assemble → deploy → interact, with
+owner-approved Codex pairing inside the selected Personal Computer when that
+deployment is supported. Those are acceptance stages, not new CLI commands or MCP
+tools. A dedicated hosted computer is not automatically eligible for personal
+subscription use. Managed Codex app-server authentication is not permitted for
+commercial or hosted services; verify the current supported integration and terms
+before proposing pairing. See the [official app-server authentication guidance](https://learn.chatgpt.com/docs/app-server#auth-endpoints).
+
+Verify the installed driver's actual supported sign-in method and eligibility on
+that exact computer. Atlas OAuth and Codex pairing are separate. The owner completes
+sensitive sign-in in the supported secure surface. Never copy local Codex auth
+files, another agent's credentials, tokens, cookies or one-time codes into chat,
+prompts, request files, logs or artifacts. A subscription, successful sign-in or
+installed binary is not live inference evidence. If support, entitlement or secure
+isolation is missing, report that exact gate and stop pairing.
+
+A separate fallback target is platform-funded Luna per Worker/computer, steered by
+a stronger frontier agent such as Astra/Fable. It requires its own reviewed provider
+adapter, operator-funded budget and current worker-scoped authority. Do not silently
+switch providers after pairing fails or request a user's subscription credential.
+These model labels describe a target architecture, not implemented provider IDs,
+worker request fields or verified availability.
+
+For either route, verify deployed computer identity and runtime readiness, one
+bounded synthetic interaction through the selected driver, durable task outcome,
+an independently read artifact, interruption/recovery and whole-job cleanup. Mark
+each gate PASS, FAIL, BLOCKED or NOT_RUN. Package tests do not establish deployment,
+pairing, inference or cleanup. Report the first incomplete gate without erasing the
+parts already verified.
+
 ## Signal: native scoped context
 
 Signal remains available for native text, native voice and authorized archive
