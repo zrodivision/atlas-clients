@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import {
   mkdtemp,
+  realpath,
   mkdir,
   readFile,
   rm,
@@ -309,7 +310,8 @@ assert.equal(
 );
 
 const root = resolve(import.meta.dirname, "..");
-const scratch = await mkdtemp(join(tmpdir(), "atlas-workers-"));
+// macOS aliases /var to /private/var; satisfy the unchanged profile guard.
+const scratch = await realpath(await mkdtemp(join(tmpdir(), "atlas-workers-")));
 const serverCalls: { name: string; arguments: unknown }[] = [];
 let advertise = false;
 let toolError = false;
