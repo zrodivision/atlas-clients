@@ -295,6 +295,15 @@ Restore is destructive and requires separate approved scope; it is not a stop or
 retry command. Missing worker capability is not permission to invoke the provider
 directly, borrow credentials, change security policy or destroy the computer.
 
+The `handling` record in worker guide, contract and action help maps user intent to
+exact candidate actions. Status means `inspect`; stopping work means requesting
+`cancel`, not claiming the computer or billing has stopped. Pause, resume, restart,
+delete, resize and worker-list operations are not candidate aliases. Do not invent
+them or bypass Atlas with a direct provider call. Read any server-returned
+`worker.handling` alongside the observed state; missing handling is unknown, not
+ready. Advice is not authority. Reconcile uncertain attempts with the saved identity
+rather than a fresh mutation. Use bounded observation, never a busy polling loop.
+
 ## Machine-readable setup and worker guidance (source candidate)
 
 `atlas setup guide` returns offline JSON for supported connection routes, exact

@@ -16,6 +16,82 @@ export const workerActions = {
   restore: ["workerId", "requestId", "expectedRevision", "checkpointId"],
 } as const;
 
+/** Intent routing, not aliases or a claim that the server exposes these actions. */
+function workerHandlingGuide() {
+  return {
+    schemaVersion: 1,
+    authority: "guidance_only",
+    dispatch: "exact_live_discovered_schema_only",
+    intents: [
+      {
+        intent: "create_computer",
+        action: "create",
+        completion:
+          "provider deployment and runtime readiness verified separately",
+      },
+      {
+        intent: "check_status",
+        action: "inspect",
+        completion:
+          "current projection read; execution and billing remain separately evidenced",
+      },
+      {
+        intent: "execute_task",
+        action: "run",
+        completion: "canonical task outcome and accessible artifact verified",
+      },
+      {
+        intent: "stop_work",
+        action: "cancel",
+        completion:
+          "whole-job termination and inference settlement verified separately",
+      },
+      {
+        intent: "save_idle_disk",
+        action: "checkpoint",
+        completion: "checkpoint reference returned for this worker",
+      },
+      {
+        intent: "restore_disk",
+        action: "restore",
+        completion:
+          "authorized restore confirmed; no automatic task resumption",
+      },
+    ],
+    unsupportedIntents: [
+      "pause",
+      "resume",
+      "restart",
+      "delete",
+      "resize",
+      "list_workers",
+    ],
+    unsupportedIntentPolicy:
+      "Do not invent commands, alias these to cancel/restore, or call a provider directly. Inspect live discovery and report the exact missing operation.",
+    observation: {
+      command: "atlas workers inspect @inspect-request.json",
+      mcpAction: "inspect",
+      readOnly: true,
+      automaticPolling: false,
+      policy:
+        "Use bounded caller scheduling, obey server retry hints and stop on denial, missing capability or terminal evidence. No busy loops or mutation retries to refresh status.",
+      stateMeaning:
+        "A persisted lifecycle state is not proof of provider execution, readiness, shutdown, or billing settlement.",
+      serverHandling:
+        "If supplied, read worker.handling as server guidance under current authority. Missing handling means unknown, not ready. Neither next-action advice nor executionAvailable grants permission.",
+    },
+    uncertainOutcome: {
+      nextAction: "inspect",
+      identity: "same saved workerId and current authorized principal",
+      replayMutation: false,
+      allocateFreshRequestId: false,
+      revisePendingIntent: false,
+      exitCondition:
+        "canonical reconciliation of the known attempt, not a timeout or local process exit",
+    },
+  };
+}
+
 function workerLifecycleGuidance() {
   return {
     schemaVersion: 1,
@@ -187,6 +263,7 @@ export function workerContract() {
     tool: "atlas_workers",
     descriptions: workerDescriptions,
     lifecycle: workerLifecycleGuidance(),
+    handling: workerHandlingGuide(),
     examples: workerExamples(),
     authorization: {
       principal:
@@ -281,6 +358,7 @@ export function workerGuide() {
     availability: "source-only",
     firstComputer: personalComputerGuide(),
     lifecycle: workerLifecycleGuidance(),
+    handling: workerHandlingGuide(),
     goal: "Help a daily-driver agent turn an owner-approved idea into a bounded computer task, durable receipt and checked artifact.",
     versionInterpretation:
       "These commands are an unreleased 0.14.2 source candidate. The candidate version alone does not prove publication, server support or deployment.",
@@ -466,6 +544,7 @@ export function workerActionHelp(action: string) {
     authorization: contract.authorization,
     recovery: contract.recovery,
     lifecycle: contract.lifecycle,
+    handling: contract.handling,
     clientErrors: contract.clientErrors,
     authority: "guidance_only",
     availability: "source-only",

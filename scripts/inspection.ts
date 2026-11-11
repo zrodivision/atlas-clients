@@ -233,6 +233,47 @@ function signal(value: ObjectValue, selected?: string): ObjectValue {
     coverage: "unknown",
   };
 }
+/** Only the reviewed handling revision crosses this read-only projection. */
+function computerHandling(
+  value: unknown,
+  selected: string,
+): ObjectValue | null {
+  if (
+    !object(value) ||
+    value.schemaVersion !== 1 ||
+    value.stateMeaning !==
+      "persisted_lifecycle_intent_not_provider_execution" ||
+    value.execution !== "blocked" ||
+    value.blocker !== "protected_dispatch_unavailable" ||
+    !object(value.next) ||
+    value.next.action !== "inspect" ||
+    value.next.workerId !== selected ||
+    !object(value.retry) ||
+    value.retry.mode !== "inspect_before_retry" ||
+    value.retry.mutationRequestId !== "reuse_only_for_identical_intent" ||
+    value.retry.revisionSource !== "fresh_authorized_inspect" ||
+    value.retry.uncertainOutcome !== "reconcile_do_not_replace_request_id" ||
+    value.completionEvidence !== "provider_and_runtime_verified_result_required"
+  )
+    return null;
+  return {
+    ...pick(value, [
+      "schemaVersion",
+      "stateMeaning",
+      "execution",
+      "blocker",
+      "completionEvidence",
+    ]),
+    next: pick(value.next, ["action", "workerId"]),
+    retry: pick(value.retry, [
+      "mode",
+      "mutationRequestId",
+      "revisionSource",
+      "uncertainOutcome",
+    ]),
+  };
+}
+
 function computer(value: ObjectValue, selected: string): ObjectValue {
   if (!object(value.worker) || value.worker.workerId !== selected)
     throw Error();
@@ -251,6 +292,8 @@ function computer(value: ObjectValue, selected: string): ObjectValue {
       "executionStatus",
       "checkpointId",
     ]),
+    handling: computerHandling(value.worker.handling, selected),
+    handlingCoverage: "reviewed_candidate_v1_only_unknown_when_null",
     settingsCoverage: "advertised_worker_projection_only",
     runtimeReadiness: "not_verified_by_inspection",
   };

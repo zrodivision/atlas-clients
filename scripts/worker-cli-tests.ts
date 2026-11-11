@@ -57,6 +57,21 @@ assert.equal(contract.recovery.adapterAutomaticRetries, 0);
 const guide = workerGuide();
 assert.equal(guide.authority, "guidance_only");
 assert.deepEqual(guide.lifecycle, contract.lifecycle);
+assert.deepEqual(guide.handling, contract.handling);
+assert.deepEqual(
+  contract.handling.intents.map((entry) => entry.action),
+  actions,
+);
+assert.equal(contract.handling.observation.automaticPolling, false);
+assert.equal(contract.handling.uncertainOutcome.replayMutation, false);
+assert.equal(contract.handling.uncertainOutcome.allocateFreshRequestId, false);
+for (const action of actions)
+  assert.deepEqual(workerActionHelp(action)?.handling, contract.handling);
+for (const action of contract.handling.unsupportedIntents) {
+  assert.equal(workerActionHelp(action), undefined);
+  assert.throws(() => parseWorkerRequest(action, "{}"));
+}
+
 assert.equal(contract.lifecycle.dispatchAuthorityFromDisk, false);
 assert.equal(contract.lifecycle.releaseHoldsOnRestart, false);
 assert.equal(contract.lifecycle.providerLifecycleLiveAccepted, false);

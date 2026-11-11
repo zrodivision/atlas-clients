@@ -120,6 +120,22 @@ const replies: Record<string, Record<string, unknown>> = {
       runtime: "codex-sdk",
       compute: "sprites",
       executionAvailable: false,
+      handling: {
+        schemaVersion: 1,
+        stateMeaning: "persisted_lifecycle_intent_not_provider_execution",
+        execution: "blocked",
+        blocker: "protected_dispatch_unavailable",
+        next: { action: "inspect", workerId: id, private: secret },
+        retry: {
+          mode: "inspect_before_retry",
+          mutationRequestId: "reuse_only_for_identical_intent",
+          revisionSource: "fresh_authorized_inspect",
+          uncertainOutcome: "reconcile_do_not_replace_request_id",
+          private: secret,
+        },
+        completionEvidence: "provider_and_runtime_verified_result_required",
+        private: secret,
+      },
       financialAuthorization: false,
       prompt: secret,
       providerToken: secret,
@@ -265,6 +281,50 @@ const selectedReport = await inspectWorkspace(
 assert.equal(selectedReport.partial, false);
 assert.equal(selectedReport.sections.computers.data!.state, "UNCERTAIN");
 assert.equal(selectedReport.sections.computers.data!.executionAvailable, false);
+assert.equal(
+  (selectedReport.sections.computers.data!.handling as Record<string, unknown>)
+    .execution,
+  "blocked",
+);
+assert.ok(!JSON.stringify(selectedReport).includes(secret));
+for (const handling of [
+  undefined,
+  {},
+  { schemaVersion: 2 },
+  {
+    ...((replies.atlas_workers.worker as Record<string, unknown>)
+      .handling as object),
+    execution: "ready",
+  },
+  {
+    ...((replies.atlas_workers.worker as Record<string, unknown>)
+      .handling as object),
+    next: { action: "inspect", workerId: otherId },
+  },
+  {
+    ...((replies.atlas_workers.worker as Record<string, unknown>)
+      .handling as object),
+    next: { action: "run", workerId: id },
+  },
+]) {
+  const changed = fixture([{ tools: [...tools, workerTool] }], {
+    override: {
+      atlas_workers: {
+        worker: { ...(replies.atlas_workers.worker as object), handling },
+      },
+    },
+  });
+  const observed = await inspectWorkspace(
+    changed.client,
+    JSON.stringify({ workerId: id }),
+  );
+  assert.equal(observed.sections.computers.data!.handling, null);
+  assert.equal(
+    observed.sections.computers.data!.runtimeReadiness,
+    "not_verified_by_inspection",
+  );
+}
+
 assert.deepEqual(selected.calls.at(-1), {
   name: "atlas_workers",
   arguments: { action: "inspect", workerId: id },
