@@ -1,6 +1,6 @@
 {
   "name": "atlas-hosted",
-  "version": "0.14.2-rc.3",
+  "version": "0.14.2-rc.4",
   "description": "Atlas identities, permissioned messaging, memory and owner-approved runtimes.",
   "author": {
     "name": "Zero Division"

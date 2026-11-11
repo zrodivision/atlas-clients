@@ -15,7 +15,11 @@ import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import type { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { AjvJsonSchemaValidator } from "@modelcontextprotocol/sdk/validation/ajv-provider.js";
-import { workerContract, workerGuide } from "./worker-guidance.js";
+import {
+  workerActionHelp,
+  workerContract,
+  workerGuide,
+} from "./worker-guidance.js";
 import {
   parseWorkerRequest,
   validateWorkerIntent,
@@ -52,6 +56,26 @@ for (const example of contract.examples) {
 assert.equal(contract.recovery.adapterAutomaticRetries, 0);
 const guide = workerGuide();
 assert.equal(guide.authority, "guidance_only");
+assert.deepEqual(guide.lifecycle, contract.lifecycle);
+assert.equal(contract.lifecycle.dispatchAuthorityFromDisk, false);
+assert.equal(contract.lifecycle.releaseHoldsOnRestart, false);
+assert.equal(contract.lifecycle.providerLifecycleLiveAccepted, false);
+assert.equal(
+  contract.lifecycle.documentation.status,
+  "conflicting-official-documentation",
+);
+assert.equal(contract.lifecycle.documentation.sources.length, 5);
+for (const action of actions)
+  assert.deepEqual(workerActionHelp(action)?.lifecycle, contract.lifecycle);
+assert.match(
+  contract.descriptions.cancel,
+  /session exit is not whole-job termination/,
+);
+assert.match(
+  contract.descriptions.restore,
+  /Restored Service definitions do not renew/,
+);
+
 assert.equal(guide.outcomes.response_lost.retry, "never_new_request_id");
 assert.ok(guide.questions.reuseKnownAnswers);
 assert.equal(guide.workflow.at(-1)?.step, "verify");

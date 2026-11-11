@@ -16,6 +16,48 @@ export const workerActions = {
   restore: ["workerId", "requestId", "expectedRevision", "checkpointId"],
 } as const;
 
+function workerLifecycleGuidance() {
+  return {
+    schemaVersion: 1,
+    kind: "atlas-computer-recovery-guidance",
+    authority:
+      "current canonical Atlas task, generation, fence, lease and grants",
+    sessionEnded:
+      "Session exit is not whole-job termination; detached work can continue.",
+    idleWarm: "Processes may resume from frozen memory on warm wake.",
+    idleCold:
+      "Memory can be lost while configured Services start fresh on wake.",
+    serviceRestart:
+      "An old on-disk Service definition or cached binding grants no execution, connector or model authority.",
+    checkpointRestore:
+      "Separately authorized destructive disk restore must not reinstate canceled authority, resume inference or settle unresolved effects.",
+    dispatchAuthorityFromDisk: false,
+    releaseHoldsOnRestart: false,
+    providerLifecycleLiveAccepted: false,
+    recovery:
+      "Inspect the canonical known attempt. Preserve unresolved execution and inference holds; never replay with a fresh request ID.",
+    neverUseAsImplicitCancellation: [
+      "restart",
+      "restore",
+      "destroy",
+      "security-policy changes",
+    ],
+    documentation: {
+      checkedOn: "2026-11-10",
+      status: "conflicting-official-documentation",
+      conflict:
+        "Generic guidance says sleep stops processes and checkpoints include process/memory state. Dedicated pages describe warm resumption and disk-only snapshots with restored Services restarting. These are documentation claims, not live acceptance.",
+      sources: [
+        "https://docs.fly.io/sprites/working-with-sprites",
+        "https://docs.fly.io/sprites/concepts/lifecycle",
+        "https://docs.fly.io/sprites/concepts/checkpoints",
+        "https://docs.fly.io/sprites/concepts/services",
+        "https://docs.fly.io/sprites/api/exec/kill-exec-session",
+      ],
+    },
+  };
+}
+
 const workerDescriptions = {
   create:
     "Request creation of one worker bound to the selected authorized Line. An admission receipt is not deployment, readiness, Codex pairing or live inference.",
@@ -23,11 +65,11 @@ const workerDescriptions = {
     "Read current state of this exact worker. Does not create a worker, change authority or prove an unreported external effect completed.",
   run: "Request one bounded run of an existing canonical task at its observed admission version and the worker's current revision. Does not create a task or grant tools/model access.",
   cancel:
-    "Request cancellation at the observed worker revision. Acceptance is not whole-job termination or confirmation that billing stopped.",
+    "Request cancellation at the observed worker revision. Acceptance or session exit is not whole-job termination, inference settlement or confirmation that billing stopped.",
   checkpoint:
-    "Request a checkpoint at the observed worker revision. A returned checkpoint does not establish that in-flight external effects are reversible.",
+    "Request an idle disk checkpoint at the observed worker revision. It is not a memory/process-resume promise and cannot reverse external effects.",
   restore:
-    "Request restoration of a checkpoint returned by this exact worker. Does not restore external effects, credentials, grants or canonical task authority.",
+    "Request separately authorized destructive restoration of a checkpoint returned by this exact worker. Restored Service definitions do not renew task authority, credentials or grants, settle holds or undo external effects.",
 } as const;
 
 /** Synthetic examples are local parser inputs, never authorized resources. */
@@ -144,6 +186,7 @@ export function workerContract() {
     operationSent: false,
     tool: "atlas_workers",
     descriptions: workerDescriptions,
+    lifecycle: workerLifecycleGuidance(),
     examples: workerExamples(),
     authorization: {
       principal:
@@ -237,6 +280,7 @@ export function workerGuide() {
     authority: "guidance_only",
     availability: "source-only",
     firstComputer: personalComputerGuide(),
+    lifecycle: workerLifecycleGuidance(),
     goal: "Help a daily-driver agent turn an owner-approved idea into a bounded computer task, durable receipt and checked artifact.",
     versionInterpretation:
       "These commands are an unreleased 0.14.2 source candidate. The candidate version alone does not prove publication, server support or deployment.",
@@ -421,6 +465,7 @@ export function workerActionHelp(action: string) {
     example: workerExamples().find((example) => example.action === action),
     authorization: contract.authorization,
     recovery: contract.recovery,
+    lifecycle: contract.lifecycle,
     clientErrors: contract.clientErrors,
     authority: "guidance_only",
     availability: "source-only",

@@ -106,6 +106,16 @@ case "$out" in *archive.tar.gz) [ "\${ATLAS_TEST_CORRUPT:-}" != 1 ] || printf ba
   const memory = run(executable, ["memory", "guide"]);
   assert.equal(memory.status, 0, memory.stderr);
   assert.equal(JSON.parse(memory.stdout).operationSent, false);
+  const lifecycle = run(executable, ["workers", "guide"]);
+  assert.equal(lifecycle.status, 0, lifecycle.stderr);
+  const lifecycleRecord = JSON.parse(lifecycle.stdout).lifecycle;
+  assert.equal(lifecycleRecord.dispatchAuthorityFromDisk, false);
+  assert.equal(lifecycleRecord.releaseHoldsOnRestart, false);
+  assert.equal(lifecycleRecord.providerLifecycleLiveAccepted, false);
+  const restoreHelp = run(executable, ["workers", "restore", "--help"]);
+  assert.equal(restoreHelp.status, 0, restoreHelp.stderr);
+  assert.deepEqual(JSON.parse(restoreHelp.stdout).lifecycle, lifecycleRecord);
+
   const skill = join(home, ".agents/skills/atlas/SKILL.md");
   assert.match(await readFile(skill, "utf8"), /name: atlas\n/);
   assert.match(

@@ -9,7 +9,7 @@ Atlas connects an assistant to the context, people and optional computers its ow
 
 ## Guide version and freshness
 
-Guide version: 0.14.2-rc.3. This is an unreleased native-only source candidate; immutable server pin coordination, publication and deployment are separate pending gates. Inspect the deployed server guide and capabilities before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
+Guide version: 0.14.2-rc.4. This is an unreleased native-only source candidate; immutable server pin coordination, publication and deployment are separate pending gates. Inspect the deployed server guide and capabilities before using it. The server serves its reviewed copy of this guide at `atlas://guides/atlas`; `atlas://guides` lists available guides. `atlas_registration_inspect`, `atlas://me` and authenticated `atlas_console` return `guide: {uri, version, sha256}`. When no Atlas skill is installed (hosted ChatGPT or Claude connectors), or the server's `guide.version` differs from this line, read `atlas://guides/atlas` with `atlas_resources_read` (or MCP `resources/read`) and follow that copy for this server. Tell the user an installed skill is stale; refreshing it is their action. Guides are workflow guidance, not authority: tool results and owner Console decisions remain the source of truth.
 
 
 ## First session: install, verify, explain
@@ -259,6 +259,41 @@ context and provider/connector authority must be explicitly available to that
 runtime. Save exact mutation intent; inspect and reconcile unknown effects instead
 of launching a new operation. Verify the artifact and business outcome separately
 from a running process or completed model response.
+
+### Session, sleep and restore safety
+
+`atlas workers guide`, `atlas workers contract` and action help include the same
+machine-readable `lifecycle` recovery record. Apply it equally to CLI and MCP:
+
+```json
+{
+  "schemaVersion": 1,
+  "kind": "atlas-computer-recovery-guidance",
+  "dispatchAuthorityFromDisk": false,
+  "releaseHoldsOnRestart": false,
+  "providerLifecycleLiveAccepted": false,
+  "neverUseAsImplicitCancellation": ["restart", "restore", "destroy", "security-policy changes"]
+}
+```
+
+Session exit is not whole-job termination. Warm sleep can resume processes; cold
+wake or restored disk can restart Services from old definitions. Canceled tasks,
+generations, fences, leases and broker grants must remain canceled regardless of
+restored files, cached completion or a fresh request ID. Inspect the canonical
+known attempt and retain unresolved execution and inference holds. Business
+completion, provider session exit and model-reservation settlement are distinct.
+
+Official [generic Sprites guidance](https://docs.fly.io/sprites/working-with-sprites)
+says sleep stops processes and lists process/memory checkpoint capture, while the
+[dedicated lifecycle](https://docs.fly.io/sprites/concepts/lifecycle) and
+[checkpoint](https://docs.fly.io/sprites/concepts/checkpoints) pages describe warm
+resumption and disk-only snapshots with restored Services restarting. Treat these
+as conflicting documentation, not verified live behavior. Assume work can resume
+or restart and recheck current authority before effects or accepting results.
+
+Restore is destructive and requires separate approved scope; it is not a stop or
+retry command. Missing worker capability is not permission to invoke the provider
+directly, borrow credentials, change security policy or destroy the computer.
 
 ## Machine-readable setup and worker guidance (source candidate)
 
