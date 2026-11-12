@@ -6,4 +6,4 @@ Sign in or sign up, name your Atlas account, and approve an existing line or cre
 
 In a fresh chat, read atlas://me to verify account and line, then use atlas_console where MCP Apps are supported. Installing configuration alone does not establish authentication. Disconnect individual connections in Atlas Console.
 
-This native-only source candidate includes workflow guidance and generated tool references. Cellular calls and SMS are outside the production path. Computer workers remain a source candidate, not a deployed service. The Atlas service owns data and authorization. Never put tokens in plugin files. Release candidate 0.14.2-rc.4: package generation does not establish deployment or native-host acceptance.
+This native-only source candidate includes workflow guidance and generated tool references. Cellular calls and SMS are outside the production path. Computer workers remain a source candidate, not a deployed service. The Atlas service owns data and authorization. Never put tokens in plugin files. Release candidate 0.14.2-rc.5: package generation does not establish deployment or native-host acceptance.
