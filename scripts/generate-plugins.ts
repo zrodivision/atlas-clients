@@ -15,7 +15,8 @@ files[".claude-plugin/marketplace.json"] = json({
     {
       name: "atlas-hosted",
       source: "./plugins/atlas-hosted",
-      description: "Atlas shared context and permissioned agent network",
+      description:
+        "Atlas computer workshop and selected context for your agent",
     },
   ],
 });

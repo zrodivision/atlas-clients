@@ -124,7 +124,7 @@ try {
   assert.equal(JSON.parse(memoryExamples.stdout).synthetic, true);
   const workers = run("workers", "help");
   assert.equal(workers.status, 0, workers.stderr);
-  assert.match(workers.stdout, /Optional client interface/);
+  assert.match(workers.stdout, /current computer API/);
   for (const action of [
     "create",
     "inspect",
@@ -136,9 +136,9 @@ try {
     const actionHelp = run("workers", action, "--help");
     assert.equal(actionHelp.status, 0, actionHelp.stderr);
     const details = JSON.parse(actionHelp.stdout);
-    assert.equal(details.action, action);
+    assert.equal(details.tool, "atlas_computers");
     assert.equal(details.authority, "guidance_only");
-    assert.ok(details.cliFields.includes("workerId"));
+    assert.equal(details.energy.reservationIsConsumption, false);
     const validationHelp = run("workers", "validate", action, "-h");
     assert.equal(validationHelp.status, 0, validationHelp.stderr);
     assert.deepEqual(JSON.parse(validationHelp.stdout), details);
@@ -169,7 +169,7 @@ try {
     const result = run("workers", command);
     assert.equal(result.status, 0, result.stderr);
     assert.equal(JSON.parse(result.stdout).authority, "guidance_only");
-    assert.equal(JSON.parse(result.stdout).availability, "source-only");
+    assert.equal(JSON.parse(result.stdout).status, "verify_current_server");
   }
   const diagnosis = run("auth", "diagnose");
   assert.equal(diagnosis.status, 0, diagnosis.stderr);

@@ -1,7 +1,7 @@
 {
   "name": "atlas-hosted",
-  "version": "0.14.2-rc.5",
-  "description": "Atlas identities, permissioned messaging, memory and owner-approved runtimes.",
+  "version": "0.14.2-rc.6",
+  "description": "Atlas computer workshop for your existing agent, persistent workspaces and selected context.",
   "author": {
     "name": "Zero Division"
   },

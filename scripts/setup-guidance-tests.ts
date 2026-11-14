@@ -30,11 +30,11 @@ assert.match(
   guide.identity.independentAgents,
   /not a server identity or grant/,
 );
-assert.match(
-  guide.firstComputer.pairing.hostedEligibility,
-  /not automatically/,
-);
-assert.match(guide.firstComputer.pairing.unsupported, /Do not silently switch/);
+assert.equal(guide.firstComputer.tool, "atlas_computers");
+assert.equal(guide.firstComputer.energy.reservationIsConsumption, false);
+assert.equal(guide.firstComputer.energy.resetCreatesCredit, false);
+assert.match(guide.firstComputer.credentials, /No personal model subscription/);
+assert.ok(!JSON.stringify(guide).includes("platformLuna"));
 const catalog = JSON.parse(
   await readFile(join(root, "contracts/mcp-catalog.json"), "utf8"),
 );

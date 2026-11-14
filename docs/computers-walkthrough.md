@@ -1,220 +1,89 @@
-# Prepare a computer worker with Atlas
+# Use a persistent Atlas computer
 
-## Honest demo boundary
+Connect the agent you already use through native MCP or the supported CLI.
+Read `atlas://guides/atlas` and current authenticated discovery before starting.
+Source, packages and deployed capability are separate; verify each needed gate.
 
-The published client baseline is 0.14.1. The 0.14.2 source candidate adds unreleased Cursor
-setup and worker validation commands. The `atlas_workers` lifecycle is a
-source candidate, not an advertised hosted capability. A successful client
-installation is not a deployed worker. Until the server advertises the
-capability and an operator proves the runtime ready, stop at the capability
-gate below. Do not substitute the older bounded text-inference service and
-describe it as a general computer worker.
+## Hosted persistent computers through Atlas
 
-The same intent and receipts must work in Claude Code, Codex/Dots and Cursor.
-Only native installation and consent differ. The daily-driver harness need
-not match the worker's execution harness.
+Use this path when current authenticated discovery advertises `atlas_computers`.
+Call it directly through MCP, or `atlas call atlas_computers JSON` through the
+CLI. Tool discovery proves availability of a
+contract, not a deployed computer or successful paid inference.
 
-## 1. Connect the daily driver
+1. Call `atlas_computers` with `{"action":"describe"}`. Choose a returned
+   profile and one of its regions. Read the current owner approval, Energy and
+   task workflow requirements. The human must approve the intended account,
+   this requester installation, consent duration (including durable consent when supported), computer/storage limits and bounded
+   cloud/per-task Energy. Credit, allowance and spending consent are separate;
+   a stated dollar allocation is not unlimited spend or a provider hard cap.
+   If configuration, funding or approval is missing, report that exact gate.
+   Do not ask the user to create a Fly Machine, supply provider credentials or
+   authenticate a Fly CLI; Atlas assembles the provider resources.
+2. Save one UUID `requestId` and the exact provision intent. Call
+   `atlas_computers` with action `provision`, that requestId, and `spec` containing
+   **all six** fields: `profileId`, `region`, `label`, `volumeSizeGb` (integer
+   provisioned GiB within the approved limit), `autoBackupEnabled` (boolean),
+   and `snapshotRetention` (integer days, 1..60). For example, after selecting
+   the actual profile/region, the spec can use label `Research workspace`,
+   volumeSizeGb `1`, autoBackupEnabled `false`, snapshotRetention `1` if the
+   owner's retention decision permits it. Save the returned `computerId`,
+   Machine and volume identities. Never invent profile IDs or replace an
+   uncertain allocation with a fresh request.
+3. Retain a concrete owner-authorized task through `atlas_computers`:
+   `{"action":"prepare-task","requestId":"<saved-new-UUID>","text":"Write workflow.md in /workspace with the approved plan, then read it and report its contents.","ttlSeconds":3600}`.
+   This creates a canonical SUBMITTED task assigned to this current agent;
+   it does not wake compute, spend Energy, impersonate a human or require a
+   second agent. Save its `id` and `metadata.atlasVersion`. Only include context
+   the user authorized for this computer; credentials and private host history
+   do not transfer.
+4. Claim that task through `atlas_tasks`:
+   `{"action":"report","taskId":"<returned-id>","expectedVersion":<returned-metadata.atlasVersion>,"idempotencyKey":"<saved-new-key>","state":"WORKING","text":"Accepted the owner-authorized workspace task."}`.
+   Use the returned `metadata.atlasVersion`, not an assumed version. Existing
+   tasks already assigned to this agent may instead be inspected and claimed
+   using the ordinary task workflow. A stale claim requires inspection.
+5. Wake the saved computer through `atlas_computers` with action `wake`,
+   computerId and a saved new requestId. Run with
+   `{"action":"run","computerId":"<saved-id>","requestId":"<saved-run-UUID>","taskId":"<claimed-id>","taskVersion":<claimed-metadata.atlasVersion>}`.
+   Run accepts retained task input, not an inline prompt or provider key.
+   Retrieve `artifact` with computerId and `runRequestId` equal to that run's
+   requestId. Inspect the returned artifact and useful result before claiming
+   success; fixtures and a running Machine do not prove live inference.
+6. Pause with action `pause`, computerId and a saved new requestId. Wake the
+   **same computerId**, then prepare and claim a **new** dependent task such as
+   `Read the existing /workspace/workflow.md before updating the next step; report the retained plan and the change.`
+   Run it and retrieve its artifact. A new run requestId cannot repurchase an
+   already claimed task. Record matching Machine/volume identity and retained
+   file evidence across pause/wake. Explicit task status reports remain claims
+   by the agent; report completion only after inspecting the actual result.
 
-For machine-first guidance, start with `atlas --help`, `atlas setup guide`, `atlas workers guide`
-and `atlas workers contract`. They require no credentials. The guide supplies
-goal-fit examples, minimal questions, confirmation boundaries, concise result
-templates and recovery decisions. The contract supplies strict request variants
-plus semantic refinements; structural validation is not execution authority.
+On a known admission denial, restore verified funding/current owner approval
+and retry the identical provision intent. On unknown effects, inspect and
+reconcile; do not allocate a replacement. Funding/reset does not renew expired or revoked
+computer consent: the owner must explicitly renew the same computer before
+wake/run. Durable owner consent has no arbitrary testing expiry; task TTL,
+short-lived execution credentials, revocation and budget limits still apply. Pausing retains storage and its costs. Delete retains the volume;
+permanent data cleanup needs its own explicit authorization and receipt.
 
-Use a reviewed release or the reviewed source candidate. A checkout-only
-command is `npm run atlas -- ...`; do not assume a published installation
-contains branch-only commands.
+Energy covers metered compute, retained storage and inference. A reservation is
+not consumption. Inspect available, reserved, consumed and refunded amounts
+separately where returned; reconciliation releases unused holds and accounts for
+provider refunds. Reset changes an allowance, not purchased credit or permission.
+An unresolved effect can keep a hold pending; do not release it by inventing a
+new task or claim a refund before it is observed.
 
-- Claude Code: `atlas skill install claude`, then `atlas install-mcp claude`.
-- Codex: `atlas skill install codex`, then `atlas install-mcp codex`.
-- Cursor: `atlas skill install cursor`, then `atlas install-mcp cursor`.
-  Merge its printed entry into `~/.cursor/mcp.json` without overwriting other
-  entries. Complete OAuth in Cursor's MCP settings. The printed handoff does
-  not write configuration or establish authentication.
-- Hosted Dots: connect the remote MCP service at
-  `https://connectatlas.io/mcp`, complete its own consent, and read the served
-  guide. Do not assume a local skill or CLI profile exists on a cloud worker.
+The current computer path uses Atlas-managed Fly Machines and API-funded Codex
+execution. The owner does not log a Fly CLI into the agent's terminal or transfer
+a personal model subscription. Request only selected inputs and allowed
+connectors; an attached tool, Vault grant or disk file is not execution authority.
+A successful run requires a readable useful artifact. Prove retained workspace
+state with a later dependent task on the same computer, not only a wake receipt.
 
-Open a fresh conversation, discover tools, inspect registration and read
-`atlas://me`. Confirm the exact account, installation and line with the owner.
-Read the current guide at `atlas://guides/atlas`; the server reports its
-version. Refresh stale installed guidance explicitly.
 
-If using the CLI in addition to MCP, `atlas auth login` obtains a separate
-credential; `atlas whoami` verifies it. Sharing a line is deliberate, not
-credential copying. CLI browser login currently requires a browser and
-loopback callback on that same computer. A hosted MCP connection does not
-automatically solve headless CLI sign-in. Neither installing a skill nor
-authenticating grants computer execution, contacts, vaults or spending.
 
-Run `atlas auth diagnose` before attempting CLI sign-in on a cloud or remote
-computer. Its local prerequisite report reads no profiles, sends no requests
-and creates no access. `canAttemptLocalBrowserLogin` is not a connected-state
-claim. Missing local browser prerequisites should lead to native hosted MCP
-or a suitable desktop terminal, not borrowed credentials.
+## Acceptance record
 
-## 2. Turn the idea into bounded work
-
-Start with the user's domain and desired outcome, in their own words. They do
-not need to name a role, write a system prompt, assemble context documents or
-fill out a worker template. The daily-driver agent does that preparation.
-
-First use relevant context already available and authorized for this task:
-selected files, project instructions, existing decisions and connected sources
-within their current grants. Do not assume access to other chats or memory,
-search unrelated private material, or treat source content as authorization.
-Infer the useful specialization, inputs, tools and success check from that
-evidence. Propose the smallest useful computer or set of computers, explaining
-each one's concrete outcome and why separation helps. Avoid a fleet when one
-computer or the current agent is enough.
-
-For “turn this folder of CSV files into a short quality report,” propose a
-computer that checks missing values, duplicate rows and inconsistent column
-types and returns a concise report. Reuse an already selected folder and known
-output preferences. Prepare the instructions and request yourself; do not ask
-the user to design a data-quality role. State harmless, reversible assumptions
-and proceed with local planning. Ask only about missing choices that materially
-change the result or require permission: an ambiguous source folder, sending
-files to a separate runtime, an unapproved paid action, or a consequential
-external effect. Propose sensible output, deadline and cleanup defaults rather
-than making the user complete a questionnaire. Never infer permission or a
-spending limit from a useful plan.
-
-The user can keep their existing daily-driver agent subscription. That does not
-establish that it pays for or licenses a separate runtime or model, or that its
-credentials, tools, history or memory travel with the task. Verify supported
-execution and billing paths; disclose any separate cost before approval. If a
-needed context or input-transfer path is unavailable, describe the exact gap
-rather than requiring the user to rebuild their working context in templates.
-
-Agree on a small first task and verifiable result. The agent can prepare a
-synthetic-input rehearsal without processing private files. Keep external
-messages, production access and paid effects outside the first test unless
-the owner explicitly approves them. The task's request text is not a grant.
-
-## 3. Stop at current capability and authority gates
-
-Run `atlas workers capabilities` in a logged-in CLI, or inspect the native
-MCP tool list. If `atlas_workers` is absent, report that blocker and stop.
-An advertised tool alone does not prove a runtime, model or grant is ready.
-Inspect the advertised schema and current owner authorization before use.
-
-For the source candidate, the operator still must provide a trusted dispatch
-bridge, installed runtime, protected durable storage, isolated credentials,
-whole-job stop evidence and current data/tool/result adapters. These are
-server/runtime release gates, not permissions an agent can grant itself.
-The canonical skill, public schemas, server pin and released client must be
-versioned together before teaching installed agents this lifecycle as live.
-
-## 4. Rehearse the exact request offline
-
-Save a credential-free request as `create-request.json`:
-
-```json
-{
-  "workerId": "11111111-1111-4111-8111-111111111111",
-  "requestId": "22222222-2222-4222-8222-222222222222",
-  "lineId": "33333333-3333-4333-8333-333333333333",
-  "label": "Demo computer"
-}
-```
-
-These IDs are synthetic test data, not an authorized line. For a real task,
-select the exact authorized line and generate fresh UUIDs for new worker and
-request identities. Then retain that complete request for identical recovery.
-
-```sh
-atlas workers validate create @create-request.json
-```
-
-This runs without login, writes nothing, sends nothing and does not echo the
-request. A valid result is structural validation only. Use the same local
-validator for `inspect`, `run`, `cancel`, `checkpoint` and `restore`; see
-[the request field table](cli.md#computer-backed-worker-interface-source-candidate).
-Validation is not server acceptance and does not create a canonical task.
-
-## 5. Execute only once the live gates are met
-
-Use only currently advertised actions and the server's reviewed workflow:
-
-1. Create the worker with the retained request. Inspect its exact ID and state.
-2. Create or select an authorized canonical task using the current task tools.
-   A random task UUID is not a task. Read its current admission version.
-3. Save a run request with that task ID/version, current worker revision and
-   bounded prompt. Validate it, then submit it once.
-4. Inspect state and durable receipts. Admission, provisioned compute, an
-   active process, model completion, business-task completion and verified
-   artifacts are separate claims. Read the artifact before saying it works.
-5. Exercise the approved cancellation and cleanup path. Cancellation is a
-   request until whole-job stopping is confirmed. Ending the daily-driver
-   chat does not stop the remote worker or prove billing stopped.
-
-After a lost reply, inspect the saved worker ID and use the server's documented
-recovery path. Do not mint a new request ID, blindly replay an effect, change
-identities to bypass revocation or automatically rebase a stale revision.
-Keep `UNCERTAIN` outcomes uncertain. Checkpoint restoration does not restore
-in-flight external effects or grant new permissions.
-
-## Walkthrough acceptance record
-
-For each of Claude Code, Codex/Dots and Cursor, record:
-
-- Client and served-guide versions; exact verified installation and line.
-- Native authentication and fresh tool discovery, not just configuration.
-- Local invalid-request refusal and missing-capability refusal.
-- For an authorized live trial: one exact create/run, terminal canonical
-  receipt, verified artifact, interruption/recovery and confirmed cleanup.
-- What was tested locally, simulated, deployed or not tested.
-
-Do not mark the walkthrough complete from package tests alone. Cursor native
-OAuth/UI, hosted Dots orchestration, live compute/model execution and cleanup
-require their own observed acceptance.
-
-Host references: [Cursor skills](https://cursor.com/docs/skills),
-[Cursor MCP](https://cursor.com/docs/mcp), and
-[Cursor CLI MCP authentication](https://cursor.com/docs/cli/mcp).
-
-## First Personal Computer: pairing and live interaction
-
-The first acceptance target uses the owner's Codex-backed Personal Computer when
-that deployment and authentication method are supported. Conversation, assembly,
-deployment, pairing and interaction are stages to verify, not additional CLI verbs.
-Use `atlas setup guide` for machine-readable routes and gates; no `atlas pair` or
-`atlas workers deploy` command is implemented by this candidate.
-
-A dedicated Atlas-hosted computer is not automatically eligible for personal
-subscription authentication. [Official app-server guidance](https://learn.chatgpt.com/docs/app-server#auth-endpoints)
-excludes managed authentication for commercial or hosted services. Verify the
-current integration model and terms before offering owner pairing. Device login
-availability alone does not settle hosted eligibility. If an eligible route is not
-established, mark pairing BLOCKED and preserve the prepared plan.
-
-Atlas account/Line approval and Codex driver sign-in are independent. Use only the
-installed driver's current supported owner-facing flow on the exact deployed
-computer. Keep credentials isolated there. Never copy an existing local auth file,
-borrow another harness login or put tokens, cookies or one-time codes in a prompt,
-chat transcript, saved request, log or artifact. Interrupted pairing requires
-inspection/resumption of that existing flow, not hidden credentials or a new run.
-
-The separate platform-funded fallback target uses Luna per Worker/computer with a
-stronger Astra/Fable agent steering builds/workers. Verify a reviewed provider
-adapter, current worker-scoped authority and the operator-funded budget. Do not
-silently change to that route or bill a user's personal credential when Codex is
-blocked. Model labels here are intended roles, not implemented provider IDs or new
-fields in `atlas_workers` requests.
-
-For either explicitly selected route, record PASS/FAIL/BLOCKED/NOT_RUN independently:
-
-1. Reviewed client/guide/runtime versions and exact authenticated Atlas identity.
-2. Actual deployed computer identity, ready runtime and current tool/data authority.
-3. Supported inference route and its own approval/entitlement/budget evidence.
-4. One bounded synthetic task through the selected driver, not an echo fixture.
-5. Durable canonical task outcome and an independently opened artifact.
-6. Interruption recovery without a duplicate task or effect.
-7. Confirmed whole-job stopping and cleanup; process-group absence alone is not proof.
-
-Record only credential-free evidence. An assembled package, provision receipt,
-login status, active process, returned model text and completed business artifact
-are different observations. Preserve uncertainty and report the first incomplete
-gate with the smallest next decision.
+Record account/installation/Line, served guide version, computer and volume IDs,
+current authority, useful task result, independently read artifact, retained files
+after pause/wake, and Energy/recovery state. Mark missing gates BLOCKED or NOT_RUN,
+not successful. A frontend, fixture or running Machine does not prove useful work.

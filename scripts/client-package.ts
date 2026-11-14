@@ -53,7 +53,7 @@ export async function packageFiles(repository = root, hostedOrigin?: string) {
     name,
     version: pkg.version,
     description:
-      "Atlas identities, permissioned messaging, memory and owner-approved runtimes.",
+      "Atlas computer workshop for your existing agent, persistent workspaces and selected context.",
     author: { name: "Zero Division" },
     repository: "https://github.com/zrodivision/atlas-clients",
     skills: "./skills/",
@@ -81,7 +81,7 @@ export async function packageFiles(repository = root, hostedOrigin?: string) {
       : skill,
     [`skills/${name}/references/tools.json`]: json(catalog),
     "README.md": hostedOrigin
-      ? `# Atlas hosted connector\n\nInstall this plugin through your harness plugin manager and complete its native browser OAuth. The connector URL is ${hostedOrigin}/mcp. Browser app: ${hostedOrigin}/app. Keep the service origin separate from the browser path. No Atlas source checkout or CLI is required.\n\nSign in or sign up, name your Atlas account, and approve an existing line or create an independent one. Surfaces of the same harness can share a line and its grants; each connection has its own credentials. Vault access and contact exposure remain explicit owner decisions.\n\nIn a fresh chat, read atlas://me to verify account and line, then use atlas_console where MCP Apps are supported. Installing configuration alone does not establish authentication. Disconnect individual connections in Atlas Console.\n\nThis native-only source candidate includes workflow guidance and generated tool references. Cellular calls and SMS are outside the production path. Computer workers remain a source candidate, not a deployed service. The Atlas service owns data and authorization. Never put tokens in plugin files. Release candidate ${pkg.version}: package generation does not establish deployment or native-host acceptance.\n`
+      ? `# Atlas hosted connector\n\nInstall this plugin through your harness plugin manager and complete its native browser OAuth. The connector URL is ${hostedOrigin}/mcp. Browser app: ${hostedOrigin}/app. Keep the service origin separate from the browser path. No Atlas source checkout or CLI is required.\n\nSign in or sign up, name your Atlas account, and approve an existing line or create an independent one. Surfaces of the same harness can share a line and its grants; each connection has its own credentials. Vault access and contact exposure remain explicit owner decisions.\n\nIn a fresh chat, read atlas://me to verify account and line, then use atlas_console where MCP Apps are supported. Installing configuration alone does not establish authentication. Disconnect individual connections in Atlas Console.\n\nThis native-only source candidate includes workflow guidance and generated tool references. Cellular calls and SMS are outside the production path. Discover atlas_computers for the current persistent computer workflow. Current authority, readiness and useful work must be verified separately. The Atlas service owns data and authorization. Never put tokens in plugin files. Release candidate ${pkg.version}: package generation does not establish deployment or native-host acceptance.\n`
       : await read("docs/development.md"),
     "release.json": json({
       version: pkg.version,

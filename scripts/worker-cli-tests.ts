@@ -56,8 +56,8 @@ for (const example of contract.examples) {
 assert.equal(contract.recovery.adapterAutomaticRetries, 0);
 const guide = workerGuide();
 assert.equal(guide.authority, "guidance_only");
-assert.deepEqual(guide.lifecycle, contract.lifecycle);
-assert.deepEqual(guide.handling, contract.handling);
+assert.equal(guide.tool, "atlas_computers");
+assert.equal(guide.energy.reservationIsConsumption, false);
 assert.deepEqual(
   contract.handling.intents.map((entry) => entry.action),
   actions,
@@ -91,9 +91,9 @@ assert.match(
   /Restored Service definitions do not renew/,
 );
 
-assert.equal(guide.outcomes.response_lost.retry, "never_new_request_id");
-assert.ok(guide.questions.reuseKnownAnswers);
-assert.equal(guide.workflow.at(-1)?.step, "verify");
+assert.match(guide.recovery.unknownEffect, /no replacement allocation/);
+assert.equal(guide.authority, "guidance_only");
+assert.equal(guide.stages.at(-1)?.id, "continue");
 const tool = {
   name: "atlas_workers",
   inputSchema: {
@@ -486,10 +486,10 @@ try {
     );
   const help = await run("workers", "help");
   assert.equal(help.code, 0, help.stderr);
-  assert.match(help.stdout, /Optional client interface/);
+  assert.match(help.stdout, /current computer API/);
   const offlineContract = await run("workers", "contract");
   assert.equal(offlineContract.code, 0, offlineContract.stderr);
-  assert.deepEqual(JSON.parse(offlineContract.stdout), contract);
+  assert.deepEqual(JSON.parse(offlineContract.stdout), guide);
   const offlineGuide = await run("workers", "guide");
   assert.equal(offlineGuide.code, 0, offlineGuide.stderr);
   assert.deepEqual(JSON.parse(offlineGuide.stdout), guide);

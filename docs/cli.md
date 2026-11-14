@@ -29,98 +29,16 @@ This branch is the unreleased 0.14.2 native-only source candidate; the published
 | `atlas workers guide` | Emit an offline agent workflow, use-case suggestions, decision points and user-facing templates. |
 | `atlas workers validate ACTION JSON\|@request.json` | Validate saved candidate intent offline, without a profile or network request. |
 
-## Computer-backed worker interface (source candidate)
+## Persistent computers
 
-This client branch adds an optional adapter for a future `atlas_workers` MCP
-tool. Atlas 0.14.1 does not implement or advertise that tool. The adapter does
-not install a computer, run an agent, grant authority or make the separate
-runtime prototype available through the hosted service. Current servers return
-`available: false`; mutation commands stop before sending a worker operation.
-No catalog entry or maintained skill advertises this candidate as a deployed
-capability. Server integration, reviewed contracts, versioning, the immutable
-client pin and actual host/runtime acceptance remain separate work.
+Use `atlas call atlas_computers '{"action":"describe"}'` after authenticated
+live discovery advertises it. Read the [computer workflow](computers-walkthrough.md)
+and current `atlas://guides/atlas`. Generic `call` uses the exact advertised tool;
+no provider CLI credentials or personal model subscription are needed.
 
-After ordinary browser login, use `atlas workers capabilities` to inspect the
-current server's tool discovery. `available: true` means only that the tool was
-advertised, not that a computer or model is ready or permission was granted.
-The client requires the requested action to appear in that tool's schema and
-uses the same authenticated MCP connection as `atlas call`. OAuth and
-owner-issued installation profiles keep their existing authority boundaries.
-
-Agents should read `atlas workers guide` for goal-fit suggestions, what to ask
-the user, which existing answers to reuse, permission gates, recovery decisions
-and how to present verified results. `atlas workers contract` exposes complete
-native MCP request variants and CLI conventions as JSON. Both are offline,
-require no login, and explicitly identify themselves as source-only guidance.
-They never attest server capability, grant authority or start execution.
-
-For a host-independent rehearsal, first use `atlas workers validate create
-@create-request.json`. Validation works before login and returns no request
-contents. `valid: true` means the local candidate accepts the request structure,
-not that a server, owner, computer or model accepted it. It reports
-`serverChecked: false` and `operationSent: false`. Use the same saved file for
-dispatch only after current discovery and owner authority permit it. See
-[the cross-harness walkthrough](computers-walkthrough.md) for the setup sequence
-and evidence required before calling a worker deployed.
-
-The candidate command is:
-
-```sh
-atlas workers create @create-request.json
-atlas workers inspect '{"workerId":"11111111-1111-4111-8111-111111111111"}'
-```
-
-Supply either a JSON object or an exact `@request.json` regular file of at most
-64 KiB. Using a file keeps long task prompts out of shell arguments and helps
-retain exact intent for recovery. The CLI reads but never rewrites it. Do not
-include credentials, secret values, owner sessions or permission approvals in
-worker arguments. The file is not a secret store.
-
-The adapter currently understands these candidate fields; deployed backend
-authority and validation remain decisive:
-
-| Action | Fields |
-| --- | --- |
-| `create` | `workerId`, `requestId`, `lineId`, `label` |
-| `inspect` | `workerId` |
-| `run` | `workerId`, `requestId`, `expectedRevision`, `taskId`, `taskVersion`, `prompt` |
-| `cancel` | `workerId`, `requestId`, `expectedRevision` |
-| `checkpoint` | `workerId`, `requestId`, `expectedRevision` |
-| `restore` | `workerId`, `requestId`, `expectedRevision`, `checkpointId` |
-
-IDs except `checkpointId` are RFC UUIDs with version 1–8 and variant 8, 9, a or b,
-without whitespace. Revisions and task versions are positive safe integers.
-Labels are nonblank and at most 80 UTF-16 code units; prompts are nonblank and
-at most 32 KiB of UTF-8. Neither may contain NUL. Checkpoint IDs are `v` followed
-by 1–20 digits and must come from the selected worker's checkpoint response.
-Do not include an `action` property; the command supplies it. Unknown
-fields and missing saved mutation request IDs are rejected before connecting.
-The tool cannot be used to impersonate an owner, select a credential, authorize
-a provider or inherit the daily driver's private tools, history or data grants.
-
-Save the entire request before mutating. The CLI makes one tool call and never
-automatically retries, changes a request ID, resumes a worker or polls in the
-background. After a lost reply, inspect the saved worker ID and reconcile the
-operation through the backend's documented recovery protocol. Do not create a
-new request to repeat an uncertain external effect. A revision conflict needs
-fresh inspection and an intentional decision, not automatic rebasing.
-
-Runtime results are returned unchanged. Admission, provisioning, an active
-process, model completion, task outcome and artifact verification are distinct.
-Cancellation is a request until the runtime confirms stopping; checkpoints do
-not promise browser, network or in-flight operation restoration. `UNCERTAIN`
-must remain uncertain. Tool-level errors exit nonzero. Local fixture tests
-prove only adapter behavior, not production worker execution or native host
-acceptance. Listing workers, logs and artifacts needs a separately reviewed
-server contract and is not supplied by these aliases.
-
-Local worker validation and discovery failures emit JSON diagnostics on stderr
-and exit nonzero. `worker_request_fields_invalid` includes known missing and
-allowed field names plus an unsupported-field count, without echoing request
-values or unknown keys. `worker_capability_unavailable`,
-`worker_discovery_ambiguous` and `worker_discovery_incomplete` mean no worker
-operation was sent. Tool responses remain unchanged; do not treat a local
-validation success as a remote receipt.
+Offline `atlas setup guide` explains the supported sequence and recovery gates.
+Compatibility worker help/guide/contract commands now return this current workflow;
+they do not expose an alternative recommended assembly route.
 
 ## Profiles and accounts
 
@@ -188,16 +106,17 @@ The hosted plugin includes its own skill and is updated through the harness. Ins
 Owner-issued bearer installations remain supported through `atlas install` using private stdin. This is an advanced alternative; ordinary users should use browser login. npm distribution remains optional and requires Node.js; npm-installed clients use their package manager for updates.
 
 
-## Combined read-only inspection (0.15 preparation)
+## Read-only inspection
 
-`atlas inspect` observes the selected CLI connection, scoped memory access and Signal archive status together. To include a known computer, use `atlas inspect '{"workerId":"11111111-1111-4111-8111-111111111111"}'`. An optional `vaultId` limits the displayed memory selection and Signal discovery. `atlas inspect --help` requires no profile or network.
+Use `atlas whoami` and `atlas read atlas://me` to verify current identity. For an
+explicitly selected computer call `atlas_computers` action `inspect` with
+`computerId`. Inspect Vault and Signal independently through advertised
+`atlas_context_vaults` and `atlas_signal_status`. Missing, denied and empty are
+different states. None of these checks imports context or grants access.
 
-This unreleased 0.14.2-rc.5 client builds toward 0.15 while retaining the reviewed 0.14.2 wire catalog. It does not publish a new server contract. Discovery is paginated and bounded; duplicate or incomplete discovery sends no inspection calls. Only advertised read tools are called. A failed identity read blocks the remaining sections. Individual permission, compatibility and transport failures are reported without raw server errors or automatic retries.
-
-Reports contain bounded allowlisted metadata, not memory contents, prompts, provider credentials or runtime logs. They are independent reads and may differ if permissions change between calls. Missing tools, a denied read or a non-selected computer makes the report partial, never an empty-resource assertion. The computer adapter remains unavailable on current production and cannot be enabled by this command. No worker creation, mutation, Signal refresh or connector search occurs. Native MCP plugin users can follow the equivalent workflow in the bundled skill without a separate CLI login.
-
-Signal and computers are independent. No worker selection is needed for Signal status. The archive report explicitly leaves standalone representative messaging and calling readiness unassessed; it is not a live-representative acceptance test.
-
+`atlas inspect` provides connection, memory and Signal metadata. It is not a
+substitute for the current computer tool. Do not infer an ID from a Line, create a
+computer to fill a panel, or use a different identity to bypass denial.
 
 ## Map a memory system to Vault
 
@@ -205,25 +124,12 @@ Signal and computers are independent. No worker selection is needed for Signal s
 
 See [the mirror workflow](vault-mirroring.md) for scope, normal operation and remaining service gaps. Native hosted-plugin agents use the same guidance in the canonical skill and call only currently advertised Vault tools under the user's explicit transfer scope.
 
-## Machine-readable cold start (source candidate)
+## Machine-readable cold start
 
-`atlas setup guide` (also `atlas setup --help`) returns offline JSON without reading
-profiles or contacting Atlas. It selects native MCP or standalone CLI setup, gives
-schema-checked read-only verification examples, separates independent installations
-from deliberately shared Lines and explains pending/revoked/stale recovery.
-`atlas setup` retains its Console link. Extra setup arguments fail without side effects.
-
-The Personal Computer section records conversation → assembly → deployment →
-pairing → interaction as acceptance stages, not executable verbs. Codex pairing is
-conditional on the actual supported deployment and authentication model. A separate
-platform-funded Luna fallback requires explicit selection and its own adapter,
-budget and authority. No provider credentials or model-selection fields are added.
-
-`atlas workers contract` includes synthetic examples for each of the six existing
-actions, precise descriptions, authority checks and safe recovery. The examples are
-not a lifecycle sequence. `atlas workers ACTION --help` gives the corresponding
-example and contract. Before dispatch the CLI validates against live discovery;
-`worker_contract_mismatch` means the current request/schema could not be validated
-and no worker operation was sent. It does not mean the remote deployment is broken.
-Inspect the server guide before preparing a deliberate new intent. Response loss,
-revocation and stale revisions never trigger automatic mutation retries.
+`atlas setup guide` and `atlas setup --help` return offline JSON without reading
+profiles or contacting Atlas. They describe connection verification, persistent
+computer preparation, task claiming, run/artifact checks and pause/wake continuity.
+They also separate durable owner consent from task TTL and Energy reservations
+from consumption. `atlas setup` retains its Console link. Extra setup arguments
+fail without side effects. Offline guidance is not proof of deployment or spend
+permission; live discovery and the served guide govern execution.

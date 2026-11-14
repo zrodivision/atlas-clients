@@ -25,12 +25,10 @@ Distribution source, public service availability and authenticated identity are 
 
 ## Native-only candidate release gate
 
-The source candidate is 0.14.2; the latest verified GitHub stable release is 0.14.1.
-The candidate is not published. The optional npm package is not publicly published.
-The active catalog excludes the seven retired carrier tools. Native Signal archive
-and broker tools remain; historical call.request is unavailable. Current runtime
-discovery overrides old installed guides and static references. Computer workers
-remain discovery-gated source candidates, not deployed computers.
+The active package catalogue excludes retired carrier tools. Native Signal
+archive and broker tools remain. Computer capability is discovered dynamically
+on the authenticated server; package contents do not establish deployment,
+current permission, runtime readiness or live acceptance.
 
 Before publication, coordinate package/lock versions, compatibility.serverVersion,
 the canonical guide version, OpenAPI version and generated plugin manifests. Then
@@ -47,40 +45,22 @@ omit call.request; old grants do not bypass retirement. Do not remove historical
 response fields or invent a replacement schema without a reviewed server export.
 
 
-### Read-only inspection integration candidate
+### Current-only agent guidance
 
-`0.14.2-rc.5` is an isolated client prerelease for 0.15 assembly, not the coordinated 0.15 server contract. The existing public MCP catalog and compatibility.serverVersion remain 0.14.2; only package/guide identity and OpenAPI release metadata distinguish this build. Do not update a deployed server pin to this branch without reviewing the coordinated release. `npm run test:inspection` covers read-only composition and actual CLI/OAuth transports with synthetic credentials.
+`skills/atlas/SKILL.md` is the canonical installed and served guide. Keep it about
+current supported usage, not accumulated release notes or retired deployment
+paths. Preserve precise identity, grants, idempotency, Energy and recovery rules.
+`atlas setup guide` and compatibility help must direct agents to the same current
+computer workflow. Do not publish subscription-pairing or provider-console workarounds.
 
+Update the client version, OpenAPI release metadata and lockfile together when
+guide text changes. Regenerate plugins with `npm run plugins:generate`; do not edit
+copies. Coordinate the immutable atlas-core client pin and byte-identical served
+copy only after review. Publication and deployment remain separate actions.
 
-### Agent-owned memory mapping
-
-The `0.14.2-rc.5` client candidate adds offline `memory guide` and `memory examples`, a maintained mirror runbook, and schema-validated synthetic call sequences. It changes no backend route, grant, data or synchronization behavior. Run `npm run test:memory-guide` plus the full standard package/native suites. The guide is bundled with the hosted plugin; the detailed runbook is included in the npm/marketplace distribution. Final 0.15 versioning and server guide pinning remain coordinated release work.
-
-### Agent-first setup and operation guidance
-
-`npm run test:setup-guide` verifies offline/no-profile cold starts, schema-checked
-read-only MCP examples, independent synthetic CLI profiles, repeated identity
-verification and refusal to borrow another profile. Worker tests validate all
-published synthetic action examples, changed server schemas and single dispatch.
-These loopback fixtures do not establish real OAuth, host acceptance, deployment,
-Codex pairing, hosted subscription eligibility or live provider inference. All
-new guidance is bundled by the existing public CLI/plugin allowlist workflow.
-
-### MCP client dependency security baseline
-
-The source and emitted npm package pin MCP SDK 1.32.2. The reviewed lock also uses
-its compatible patched Hono node-server dependency. SDK fixtures exercise issuer
-binding, preserved issuer metadata and refusal to forward a token request across
-origins; the CLI retains its existing strict origin/redirect guards. Full package
-and native tests remain required after dependency changes. An advisory-free audit
-at one point in time is not a full security certification or live OAuth acceptance.
-
-### Restored Service and stale disk guidance
-
-The rc.4 guide identity adds shared machine-readable lifecycle recovery to worker
-contract, workflow and action help. It distinguishes session stop, warm/cold sleep,
-Service restart and destructive restore; conflicting official provider claims
-remain documentation, not live acceptance. Tests assert all offline surfaces keep
-the same no-restored-authority/no-hold-release policy. The reviewed server wire
-contract remains 0.14.2. Server repinning, publication and installed-host acceptance
-remain separate coordinated release work.
+Run `npm run check`, `npm test`, `npm run format:check` and generated-plugin parity.
+`test:current-guidance` protects current lifecycle coverage and prevents retired
+instructions leaking through installed guides or compatibility help. Static
+catalogue entries are reviewed public schemas; dynamically advertised computer
+tools must be checked against their implemented server contract. Do not fabricate
+availability by adding a schema to a plugin.

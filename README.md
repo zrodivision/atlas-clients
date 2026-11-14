@@ -1,8 +1,8 @@
 # Atlas
 
-Connect your assistant to the context, people and agents you choose. Use Atlas from your terminal, or connect it directly to your assistant through MCP.
+Give the agent you already use a persistent computer workshop and selected durable context. Connect through native MCP or the supported CLI.
 
-The published client baseline is **0.14.1**. The unreleased **0.14.2-rc.5** client candidate adds the hosted `atlas_computers` preparation/claim/run/pause/wake guide while preserving the separate legacy worker adapter and combined read-only inspection. Follow current server discovery; the hosted path requires a coordinated server deployment. Cellular calls and SMS are outside the production path. Installing a client, deploying the service and verifying native host behavior are separate steps. See the [computer worker walkthrough](docs/computers-walkthrough.md) for current gates and an honest demo sequence.
+This source candidate refreshes the current agent-first computer workflow and selected-context guidance. The existing daily-driver agent connects to Atlas, discovers `atlas_computers`, assembles a persistent workspace and verifies useful work. Source, package publication, installed clients, service deployment and live acceptance remain separate. See the [computer walkthrough](docs/computers-walkthrough.md) and [first-session guide](docs/first-session.md).
 
 For remote MCP, open your harness’s custom connector settings, add the hosted `/mcp` URL, choose OAuth and approve in the browser. No Atlas CLI, plugin or source build is required. CLI installation below is optional.
 

@@ -3,14 +3,9 @@
 import { distribution, version } from "./distribution.js";
 import { LoginReadinessError, oauthCli } from "./cli-oauth.js";
 import { installMcp } from "./mcp-install.js";
-import {
-  workerActionHelp,
-  workerContract,
-  workerGuide,
-} from "./worker-guidance.js";
+import { workerActionHelp, workerGuide } from "./worker-guidance.js";
 import {
   WorkerCommandError,
-  workerHelp,
   workerCommand,
   readWorkerArgument,
   parseWorkerRequest,
@@ -152,13 +147,13 @@ try {
   } else if (command === "inspect" && name === "help") {
     output(inspectionHelp);
   } else if (command === "workers" && (!name || name === "help")) {
-    output(workerHelp);
+    output(workerGuide());
   } else if (validation) {
     output(validation);
   } else if (actionHelp) {
-    output(actionHelp);
+    output(workerGuide());
   } else if (command === "workers" && name === "contract") {
-    output(workerContract());
+    output(workerGuide());
   } else if (command === "workers" && name === "guide") {
     output(workerGuide());
   } else if (command === "auth" && (!name || name === "help")) {

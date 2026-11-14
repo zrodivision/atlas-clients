@@ -1,6 +1,6 @@
 {
-  "version": "0.14.2-rc.5",
-  "skillSha256": "024f08b75d26f09c60ad1dfc63544b285fd938fb3639c5537e0cce7078e98294",
+  "version": "0.14.2-rc.6",
+  "skillSha256": "1d9801db5d60f51d48c2eeb3c6ea6065b892fcf3cca3d6a7c806fad832208681",
   "catalogSha256": "325f079eaadccf7665cc6d042ec33259b58bc47c5b9ded79199754c39ff3078b",
   "surfaces": {
     "atlas_console": "Custom remote MCP connector URL, OAuth and browser consent are first-class zero-install setup. CLI/plugins are optional. Console owns signup, invitation acceptance, line exposure, vault grants and exact-installation invitation permission; MCP App never substitutes agent credentials for human authority. The Developers section owns scoped app-key issuance/revocation and a draft Lines API reference; the inline App links to the Console and never issues keys. Conversations supports account-only human contact/task interaction alongside advanced Line activity; optional GPT-Live voice is explicitly configured and live-unverified.",

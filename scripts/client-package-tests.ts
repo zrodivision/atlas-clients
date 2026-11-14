@@ -50,7 +50,7 @@ try {
   );
   assert.match(
     files["skills/atlas-local/SKILL.md"],
-    /source candidate, not deployed/,
+    /does not prove deployment or live/,
   );
   assert.match(
     files["skills/atlas-local/SKILL.md"],
